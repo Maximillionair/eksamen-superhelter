@@ -52,4 +52,21 @@ UserSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
+// Add refresh token field for JWT authentication
+UserSchema.add({
+  refreshToken: {
+    type: String,
+    default: null
+  }
+});
+
+// Method to generate auth token data
+UserSchema.methods.generateAuthToken = function() {
+  return {
+    id: this._id,
+    username: this.username,
+    email: this.email
+  };
+};
+
 module.exports = mongoose.model('User', UserSchema);

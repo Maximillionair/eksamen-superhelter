@@ -1,5 +1,7 @@
 // controllers/authController.js - Controller for authentication
 const User = require('../models/User');
+const { generateToken } = require('../utils/jwt');
+const jwtConfig = require('../config/jwt');
 
 /**
  * Display login form
@@ -16,7 +18,7 @@ exports.getLogin = (req, res) => {
  */
 exports.postLogin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, rememberMe } = req.body;
     
     // Find user by email
     const user = await User.findOne({ email });
@@ -26,7 +28,7 @@ exports.postLogin = async (req, res) => {
       return res.redirect('/auth/login');
     }
     
-    // Compare password
+    // Compare password with bcrypt hashing
     const isMatch = await user.comparePassword(password);
     
     if (!isMatch) {
@@ -35,11 +37,16 @@ exports.postLogin = async (req, res) => {
     }
     
     // Set user session
-    req.session.user = {
-      id: user._id,
-      username: user.username,
-      email: user.email
-    };
+    const userData = user.generateAuthToken();
+    req.session.user = userData;
+    
+    // If "Remember Me" is checked, create a JWT token and store in cookie
+    if (rememberMe === 'on') {
+      const token = generateToken(userData);
+      
+      // Set the token as an HTTP-only cookie
+      res.cookie('token', token, jwtConfig.cookie);
+    }
     
     req.flash('success_msg', 'You are now logged in');
     res.redirect('/');
@@ -107,6 +114,10 @@ exports.postRegister = async (req, res) => {
  * Handle logout
  */
 exports.logout = (req, res) => {
+  // Clear the JWT token cookie
+  res.clearCookie('token');
+  
+  // Destroy the session
   req.session.destroy(err => {
     if (err) {
       console.error('Logout error:', err);

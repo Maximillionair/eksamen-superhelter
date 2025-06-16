@@ -49,6 +49,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(morgan('dev'));
 
+// Cookie parser middleware
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 // Session middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || 'superhero-secret',
