@@ -6,6 +6,7 @@ const path = require('path');
 const session = require('express-session');
 const flash = require('connect-flash');
 const morgan = require('morgan');
+const expressLayouts = require('express-ejs-layouts');
 
 // Import routes
 const indexRoutes = require('./routes/index');
@@ -28,6 +29,12 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/superhero
 // Set view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+// Set up EJS layouts
+app.use(expressLayouts);
+app.set('layout', 'layouts/main');
+app.set("layout extractScripts", true);
+app.set("layout extractStyles", true);
 
 // Middleware
 app.use(express.json());

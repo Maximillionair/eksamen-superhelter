@@ -1,7 +1,4 @@
 <!-- views/index.ejs - Home page with hero listing -->
-<%- include('./layouts/main', { title: title }) %>
-
-<% function body() { %>
   <header class="text-center mb-5">
     <h1 class="display-4">Welcome to the Superhero Database</h1>
     <p class="lead">Explore information about your favorite superheroes</p>
@@ -24,8 +21,4 @@
   
   <!-- Pagination -->
   <%- include('./partials/pagination', { currentPage, totalPages }) %>
-<% } %>
-
-<% if (typeof body === 'function') { %>
-  <% body() %>
 <% } %>
