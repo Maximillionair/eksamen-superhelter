@@ -81,11 +81,29 @@ exports.searchHeroes = async (query, limit = 20) => {
       return await Superhero.find().limit(limit);
     }
     
-    // Search in database
-    return await Superhero.find(
-      { $text: { $search: query } },
-      { score: { $meta: "textScore" } }
-    ).sort({ score: { $meta: "textScore" } }).limit(limit);
+    // First try text search if it's configured
+    try {
+      const textSearchResults = await Superhero.find(
+        { $text: { $search: query } },
+        { score: { $meta: "textScore" } }
+      ).sort({ score: { $meta: "textScore" } }).limit(limit);
+      
+      if (textSearchResults.length > 0) {
+        return textSearchResults;
+      }
+    } catch (textSearchError) {
+      console.log('Text search not configured or failed, falling back to regex search');
+    }
+    
+    // If text search returns no results or fails, fall back to regex search
+    const regexPattern = new RegExp(query, 'i');
+    return await Superhero.find({
+      $or: [
+        { name: regexPattern },
+        { 'biography.fullName': regexPattern },
+        { 'biography.publisher': regexPattern }
+      ]
+    }).limit(limit);
   } catch (error) {
     console.error('Error searching heroes:', error);
     throw error;
@@ -113,6 +131,26 @@ exports.getPaginatedHeroes = async (page = 1, limit = 20) => {
     };
   } catch (error) {
     console.error('Error getting paginated heroes:', error);
+    throw error;
+  }
+};
+
+/**
+ * Search the Superhero API by name
+ */
+exports.searchSuperheroAPI = async (name) => {
+  try {
+    console.log(`Searching Superhero API for: ${name}`);
+    const response = await axios.get(`${API_BASE_URL}/${API_KEY}/search/${name}`);
+    
+    if (response.data.response === 'error') {
+      console.log(`API Error: ${response.data.error}`);
+      return [];
+    }
+    
+    return response.data.results || [];
+  } catch (error) {
+    console.error('Error searching Superhero API:', error);
     throw error;
   }
 };

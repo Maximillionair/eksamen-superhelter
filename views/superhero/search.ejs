@@ -1,29 +1,42 @@
 <!-- views/superhero/search.ejs - Search results page -->
-  <div class="mb-4">
-    <h2>Search Results for "<%= query %>"</h2>
-    
-    <form action="/superhero/search" method="GET" class="mt-3">
-      <div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="Search heroes..." name="query" value="<%= query %>">
-        <button class="btn btn-primary" type="submit">Search</button>
-      </div>
-    </form>
+  <header class="text-center mb-4">
+    <h1 class="display-5">Search Results for "<%= query %>"</h1>
+    <p class="lead">Find your favorite hero in our database or the Superhero API</p>
+  </header>
+
+  <!-- Search form -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <form id="search-form">
+        <div class="input-group">
+          <input type="text" class="form-control" id="search-input" name="query" placeholder="Search hero name..." value="<%= query %>" required>
+          <button class="btn btn-primary" type="submit">Search Database</button>
+          <button class="btn btn-secondary" type="button" id="api-search-btn">Search API</button>
+        </div>
+      </form>
+    </div>
   </div>
   
-  <!-- Hero cards -->
-  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-5">
+  <!-- Search results -->
+  <div id="search-results" class="mb-4">
     <% if (heroes && heroes.length > 0) { %>
-      <% heroes.forEach(hero => { %>
-        <div class="col">
-          <%- include('../partials/hero-card', { hero: hero, profile: locals.profile }) %>
-        </div>
-      <% }) %>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        <% heroes.forEach(hero => { %>
+          <div class="col">
+            <%- include('../partials/hero-card', { hero: hero, profile: locals.profile }) %>
+          </div>
+        <% }) %>
+      </div>
     <% } else { %>
-      <div class="col-12 text-center">
-        <p>No heroes found matching "<%= query %>". Try a different search term.</p>
+      <div class="alert alert-info">
+        No heroes found for "<%= query %>". Try searching the Superhero API instead.
+        <button id="try-api-search" class="btn btn-sm btn-primary ms-2">Search API</button>
       </div>
     <% } %>
   </div>
-    <div class="text-center mb-5">
+
+  <div class="text-center mb-5">
     <a href="/" class="btn btn-outline-primary">Back to All Heroes</a>
   </div>
+
+  <script src="/js/search.js"></script>

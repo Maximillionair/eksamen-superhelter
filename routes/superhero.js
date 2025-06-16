@@ -3,8 +3,10 @@ const express = require('express');
 const router = express.Router();
 const superheroController = require('../controllers/superheroController');
 
-// Search route
+// Search routes
 router.get('/search', superheroController.searchSuperheroes);
+router.get('/api-search', superheroController.apiSearch);
+router.post('/add-to-database', superheroController.addToDatabase);
 
 // Individual superhero route
 router.get('/:id', superheroController.getSuperhero);

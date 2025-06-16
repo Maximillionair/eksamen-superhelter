@@ -86,6 +86,85 @@ exports.searchSuperheroes = async (req, res) => {
 };
 
 /**
+ * Search the Superhero API and return results
+ */
+exports.apiSearch = async (req, res) => {
+  try {
+    const query = req.query.query || '';
+    
+    if (!query) {
+      return res.json({
+        success: false,
+        message: 'Search query is required'
+      });
+    }
+    
+    const results = await superheroService.searchSuperheroAPI(query);
+    
+    res.json({
+      success: true,
+      heroes: results
+    });
+  } catch (error) {
+    console.error('Error searching Superhero API:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to search Superhero API',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Add heroes from API to database
+ */
+exports.addToDatabase = async (req, res) => {
+  try {
+    const { heroIds } = req.body;
+    
+    if (!heroIds || !Array.isArray(heroIds) || heroIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Hero IDs array is required'
+      });
+    }
+    
+    // Limit batch size
+    const batchSize = Math.min(heroIds.length, 20);
+    const processedIds = heroIds.slice(0, batchSize);
+    
+    console.log(`Adding ${processedIds.length} heroes to database`);
+    
+    let added = 0;
+    let errors = [];
+    
+    // Process heroes one by one
+    for (const id of processedIds) {
+      try {
+        await superheroService.fetchAndStoreSingleHero(id);
+        added++;
+      } catch (error) {
+        errors.push({ id, error: error.message });
+      }
+    }
+    
+    res.json({
+      success: true,
+      added,
+      errors,
+      message: `Successfully added ${added} heroes to database`
+    });
+  } catch (error) {
+    console.error('Error adding heroes to database:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to add heroes to database',
+      error: error.message
+    });
+  }
+};
+
+/**
  * Admin function to fetch a batch of heroes from the API to populate the database
  * (Protected by admin middleware in routes)
  */
