@@ -3,8 +3,8 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Superhero = require('../models/Superhero');
 
-// Connect to MongoDB - make sure to use correct VM IP
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero';
+// Connect to MongoDB - use the fixed VM IP
+const MONGODB_URI = 'mongodb://10.12.87.70:27017/superhero-app';
 console.log('Attempting to connect to MongoDB at:', MONGODB_URI);
 
 mongoose.connect(MONGODB_URI, {
