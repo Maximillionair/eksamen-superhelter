@@ -18,12 +18,20 @@ const profileRoutes = require('./routes/profile');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app')
+// Connect to MongoDB - with additional options for reliability
+const mongoOptions = {
+  serverSelectionTimeoutMS: 30000, // Timeout after 30 seconds
+  socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+  family: 4 // Use IPv4, skip trying IPv6
+};
+
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app', mongoOptions)
   .then(() => console.log('MongoDB connected to VM at 10.12.87.70'))
   .catch(err => {
     console.error('MongoDB connection error:', err);
     console.log('Ensure MongoDB is running on the VM and configured for remote access');
+    console.log('Hint: MongoDB needs to be configured to accept connections from other VMs');
+    console.log('Check /etc/mongod.conf and ensure bindIp is set to 0.0.0.0 or includes your app VM\'s IP');
   });
 
 // Set view engine
