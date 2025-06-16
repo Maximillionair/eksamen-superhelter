@@ -1,7 +1,4 @@
 <!-- views/profile/index.ejs - User profile page -->
-<%- include('../layouts/main', { title: 'My Profile' }) %>
-
-<% function body() { %>
   <div class="row">
     <!-- Profile information -->
     <div class="col-lg-4 mb-4">
@@ -84,10 +81,4 @@
           <% } %>
         </div>
       </div>
-    </div>
-  </div>
-<% } %>
-
-<% if (typeof body === 'function') { %>
-  <% body() %>
-<% } %>
+    </div>  </div>

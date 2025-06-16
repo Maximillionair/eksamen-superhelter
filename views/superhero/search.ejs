@@ -1,7 +1,4 @@
 <!-- views/superhero/search.ejs - Search results page -->
-<%- include('../layouts/main', { title: 'Search Results' }) %>
-
-<% function body() { %>
   <div class="mb-4">
     <h2>Search Results for "<%= query %>"</h2>
     
@@ -27,12 +24,6 @@
       </div>
     <% } %>
   </div>
-  
-  <div class="text-center mb-5">
+    <div class="text-center mb-5">
     <a href="/" class="btn btn-outline-primary">Back to All Heroes</a>
   </div>
-<% } %>
-
-<% if (typeof body === 'function') { %>
-  <% body() %>
-<% } %>
