@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 const Superhero = require('../models/Superhero');
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/superhero-app')
-  .then(() => console.log('MongoDB connected successfully for seeding test data'))
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app')
+  .then(() => console.log('MongoDB connected to VM for seeding test data'))
   .catch(err => {
     console.error('MongoDB connection error:', err);
     process.exit(1);
