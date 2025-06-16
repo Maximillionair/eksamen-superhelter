@@ -3,7 +3,8 @@ const axios = require('axios');
 const Superhero = require('../models/Superhero');
 
 const API_BASE_URL = 'https://superheroapi.com/api';
-const API_KEY = process.env.SUPERHERO_API_KEY;
+// Using API key from .env file
+const API_KEY = process.env.SUPERHERO_API_KEY || '827b70542b140115fb17e369951a8fef';
 
 /**
  * Fetch a hero by ID from the API and store in database

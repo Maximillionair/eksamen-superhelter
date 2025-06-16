@@ -1,12 +1,13 @@
 // scripts/init-db.js - Script to initialize the database with superhero data
-require('dotenv').config({ path: '../.env' });
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const mongoose = require('mongoose');
 const axios = require('axios');
 const Superhero = require('../models/Superhero');
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app')
-  .then(() => console.log('MongoDB connected to VM at 10.12.87.70'))
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/superhero-app')
+  .then(() => console.log('MongoDB connected successfully'))
   .catch(err => {
     console.error('MongoDB connection error:', err);
     process.exit(1);
@@ -57,7 +58,8 @@ const heroIds = [
 
 // API configuration
 const API_BASE_URL = 'https://superheroapi.com/api';
-const API_KEY = process.env.SUPERHERO_API_KEY || 'your-api-key-here';
+// Using API key from .env file
+const API_KEY = process.env.SUPERHERO_API_KEY || '827b70542b140115fb17e369951a8fef';
 
 /**
  * Transform API data to match our schema
