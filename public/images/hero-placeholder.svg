@@ -1,0 +1,9 @@
+<!-- Base64 encoded placeholder image for heroes -->
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+  <rect width="300" height="300" fill="#6c757d"/>
+  <text x="50%" y="50%" font-family="Arial" font-size="24" fill="#fff" text-anchor="middle" dominant-baseline="middle">
+    Hero Image Not Available
+  </text>
+  <path d="M150 80 C130 80 115 95 115 115 C115 135 130 150 150 150 C170 150 185 135 185 115 C185 95 170 80 150 80 Z" fill="#fff"/>
+  <path d="M190 170 C175 155 160 150 150 150 C140 150 125 155 110 170 C95 185 90 210 90 225 L210 225 C210 210 205 185 190 170 Z" fill="#fff"/>
+</svg>

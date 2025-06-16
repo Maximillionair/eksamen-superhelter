@@ -1,0 +1,38 @@
+<!-- views/auth/login.ejs - Login page -->
+<%- include('../layouts/main', { title: 'Login' }) %>
+
+<% function body() { %>
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-body">
+          <h2 class="card-title text-center mb-4">Login</h2>
+          
+          <form action="/auth/login" method="POST">
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" id="email" name="email" class="form-control" required autofocus>
+            </div>
+            
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+          </form>
+          
+          <div class="mt-4 text-center">
+            <p>Don't have an account? <a href="/auth/register">Register</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } %>
+
+<% if (typeof body === 'function') { %>
+  <% body() %>
+<% } %>

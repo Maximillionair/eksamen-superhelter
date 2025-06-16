@@ -1,0 +1,31 @@
+<!-- views/index.ejs - Home page with hero listing -->
+<%- include('./layouts/main', { title: title }) %>
+
+<% function body() { %>
+  <header class="text-center mb-5">
+    <h1 class="display-4">Welcome to the Superhero Database</h1>
+    <p class="lead">Explore information about your favorite superheroes</p>
+  </header>
+
+  <!-- Hero cards -->
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-4">
+    <% if (heroes && heroes.length > 0) { %>
+      <% heroes.forEach(hero => { %>
+        <div class="col">
+          <%- include('./partials/hero-card', { hero: hero, profile: locals.profile }) %>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="col-12 text-center">
+        <p>No heroes found. Try a different search.</p>
+      </div>
+    <% } %>
+  </div>
+  
+  <!-- Pagination -->
+  <%- include('./partials/pagination', { currentPage, totalPages }) %>
+<% } %>
+
+<% if (typeof body === 'function') { %>
+  <% body() %>
+<% } %>

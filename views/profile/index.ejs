@@ -1,0 +1,93 @@
+<!-- views/profile/index.ejs - User profile page -->
+<%- include('../layouts/main', { title: 'My Profile' }) %>
+
+<% function body() { %>
+  <div class="row">
+    <!-- Profile information -->
+    <div class="col-lg-4 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h3 class="card-title mb-0">Profile Information</h3>
+        </div>
+        <div class="card-body">
+          <form action="/profile" method="POST">
+            <div class="mb-3">
+              <label for="username" class="form-label">Username</label>
+              <input type="text" class="form-control" id="username" name="username" value="<%= profile.username %>" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" name="email" value="<%= profile.email %>" required>
+            </div>
+            
+            <div class="text-center">
+              <button type="submit" class="btn btn-primary">Update Profile</button>
+            </div>
+          </form>
+        </div>
+        <div class="card-footer text-muted">
+          <small>Account created on: <%= new Date(profile.createdAt).toLocaleDateString() %></small>
+        </div>
+      </div>
+      
+      <!-- Change Password Section -->
+      <div class="card shadow-sm mt-4">
+        <div class="card-header bg-secondary text-white">
+          <h3 class="card-title mb-0">Change Password</h3>
+        </div>
+        <div class="card-body">
+          <form action="/profile/password" method="POST">
+            <div class="mb-3">
+              <label for="currentPassword" class="form-label">Current Password</label>
+              <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="newPassword" class="form-label">New Password</label>
+              <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="confirmPassword" class="form-label">Confirm New Password</label>
+              <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+            </div>
+            
+            <div class="text-center">
+              <button type="submit" class="btn btn-secondary">Change Password</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Favorite heroes -->
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-danger text-white">
+          <h3 class="card-title mb-0">My Favorite Heroes</h3>
+        </div>
+        <div class="card-body">
+          <% if (favoriteHeroes && favoriteHeroes.length > 0) { %>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+              <% favoriteHeroes.forEach(hero => { %>
+                <div class="col">
+                  <%- include('../partials/hero-card', { hero: hero, profile: profile }) %>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="text-center py-5">
+              <p class="mb-3">You don't have any favorite heroes yet.</p>
+              <a href="/" class="btn btn-primary">Browse Heroes</a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } %>
+
+<% if (typeof body === 'function') { %>
+  <% body() %>
+<% } %>

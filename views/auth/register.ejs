@@ -1,0 +1,50 @@
+<!-- views/auth/register.ejs - Registration page -->
+<%- include('../layouts/main', { title: 'Register' }) %>
+
+<% function body() { %>
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-body">
+          <h2 class="card-title text-center mb-4">Create an Account</h2>
+          
+          <form action="/auth/register" method="POST">
+            <div class="mb-3">
+              <label for="username" class="form-label">Username</label>
+              <input type="text" id="username" name="username" class="form-control" required autofocus>
+              <div class="form-text">Username must be 3-30 characters and contain only letters and numbers.</div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" id="password" name="password" class="form-control" required>
+              <div class="form-text">Password must be at least 6 characters.</div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="confirmPassword" class="form-label">Confirm Password</label>
+              <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+            </div>
+            
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary">Register</button>
+            </div>
+          </form>
+          
+          <div class="mt-4 text-center">
+            <p>Already have an account? <a href="/auth/login">Login</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } %>
+
+<% if (typeof body === 'function') { %>
+  <% body() %>
+<% } %>
