@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchResults = document.getElementById('search-results');
     const searchInput = document.getElementById('search-input');
     const apiSearchBtn = document.getElementById('api-search-btn');
+    const tryApiSearchBtn = document.getElementById('try-api-search');
     
     if (searchForm) {
         searchForm.addEventListener('submit', function(e) {
@@ -11,8 +12,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const query = searchInput.value.trim();
             
             if (query) {
-                // First search local database
-                searchDatabase(query);
+                // Search both database and API if needed
+                searchHeroes(query);
             }
         });
     }
@@ -21,52 +22,66 @@ document.addEventListener('DOMContentLoaded', function() {
         apiSearchBtn.addEventListener('click', function() {
             const query = searchInput.value.trim();
             if (query) {
-                // If user explicitly clicks API search button, search the Superhero API
+                // If user explicitly clicks API search button, search the Superhero API directly
                 searchSuperheroAPI(query);
             }
         });
     }
     
-    // Function to search the local database
-    function searchDatabase(query) {
+    // If there's a "try API search" button, hook it up
+    if (tryApiSearchBtn) {
+        tryApiSearchBtn.addEventListener('click', function() {
+            const query = searchInput.value.trim();
+            if (query) {
+                searchSuperheroAPI(query);
+            }
+        });
+    }
+    
+    // Main search function - searches database first, which will also search API if needed
+    function searchHeroes(query) {
+        searchResults.innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Searching for "${query}"...</p>
+            </div>
+        `;
+        
         fetch(`/api/heroes/search?query=${encodeURIComponent(query)}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.heroes.length > 0) {
                     displayResults(data.heroes);
                 } else {
+                    // If no results found even after API search
                     searchResults.innerHTML = `
                         <div class="alert alert-info">
-                            No heroes found in the database. 
-                            <button id="try-api-search" class="btn btn-sm btn-primary">
-                                Try searching the Superhero API
-                            </button>
+                            No heroes found for "${query}". Try a different search term.
+                            <a href="/" class="btn btn-primary ms-2">Back to Homepage</a>
                         </div>
                     `;
-                    
-                    document.getElementById('try-api-search').addEventListener('click', function() {
-                        searchSuperheroAPI(query);
-                    });
                 }
             })
             .catch(error => {
-                console.error('Error searching database:', error);
+                console.error('Error searching heroes:', error);
                 searchResults.innerHTML = `
                     <div class="alert alert-danger">
-                        Error searching the database. Please try again.
+                        Error searching for heroes. Please try again.
                     </div>
                 `;
             });
     }
     
-    // Function to search the Superhero API
+    // Function to search the Superhero API directly (when button is clicked)
     function searchSuperheroAPI(query) {
         searchResults.innerHTML = `
             <div class="text-center">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
-                <p class="mt-2">Searching the Superhero API...</p>
+                <p class="mt-2">Searching the Superhero API directly...</p>
             </div>
         `;
         

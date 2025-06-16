@@ -9,6 +9,7 @@ exports.searchHeroes = async (req, res) => {
     const query = req.query.query || '';
     const limit = parseInt(req.query.limit) || 20;
     
+    // This will search local DB first, then fall back to API if needed
     const heroes = await superheroService.searchHeroes(query, limit);
     
     // Return simplified hero data

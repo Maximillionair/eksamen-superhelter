@@ -1,7 +1,7 @@
 <!-- views/superhero/search.ejs - Search results page -->
   <header class="text-center mb-4">
     <h1 class="display-5">Search Results for "<%= query %>"</h1>
-    <p class="lead">Find your favorite hero in our database or the Superhero API</p>
+    <p class="lead">Searching our database and the Superhero API</p>
   </header>
 
   <!-- Search form -->
@@ -10,8 +10,11 @@
       <form id="search-form">
         <div class="input-group">
           <input type="text" class="form-control" id="search-input" name="query" placeholder="Search hero name..." value="<%= query %>" required>
-          <button class="btn btn-primary" type="submit">Search Database</button>
-          <button class="btn btn-secondary" type="button" id="api-search-btn">Search API</button>
+          <button class="btn btn-primary" type="submit">Search</button>
+          <button class="btn btn-secondary" type="button" id="api-search-btn" title="Directly search the Superhero API">API Search</button>
+        </div>
+        <div class="form-text">
+          Can't find a hero? Our application will automatically check the Superhero API for you!
         </div>
       </form>
     </div>
@@ -29,8 +32,8 @@
       </div>
     <% } else { %>
       <div class="alert alert-info">
-        No heroes found for "<%= query %>". Try searching the Superhero API instead.
-        <button id="try-api-search" class="btn btn-sm btn-primary ms-2">Search API</button>
+        No heroes found for "<%= query %>". Try another search term or use the API search button.
+        <button id="try-api-search" class="btn btn-sm btn-primary ms-2">Try API Search</button>
       </div>
     <% } %>
   </div>

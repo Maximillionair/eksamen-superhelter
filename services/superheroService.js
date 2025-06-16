@@ -97,13 +97,99 @@ exports.searchHeroes = async (query, limit = 20) => {
     
     // If text search returns no results or fails, fall back to regex search
     const regexPattern = new RegExp(query, 'i');
-    return await Superhero.find({
+    const dbResults = await Superhero.find({
       $or: [
         { name: regexPattern },
         { 'biography.fullName': regexPattern },
         { 'biography.publisher': regexPattern }
       ]
     }).limit(limit);
+    
+    // If we have results from database, return them
+    if (dbResults.length > 0) {
+      return dbResults;
+    }
+    
+    // If no results in database, search the API
+    console.log(`No heroes found in database for "${query}", searching API...`);
+    const apiResults = await this.searchSuperheroAPI(query);
+    
+    // If API returned results, save them to database and return
+    if (apiResults && apiResults.length > 0) {
+      console.log(`Found ${apiResults.length} heroes in API, saving to database...`);
+      const savedHeroes = [];
+      
+      // Process each hero (limit to prevent too many operations)
+      const heroesToProcess = apiResults.slice(0, Math.min(apiResults.length, limit));
+      
+      for (const apiHero of heroesToProcess) {
+        try {
+          // Transform API data to match our schema
+          const heroData = {
+            id: parseInt(apiHero.id),
+            name: apiHero.name,
+            powerstats: {
+              intelligence: apiHero.powerstats.intelligence,
+              strength: apiHero.powerstats.strength,
+              speed: apiHero.powerstats.speed,
+              durability: apiHero.powerstats.durability,
+              power: apiHero.powerstats.power,
+              combat: apiHero.powerstats.combat
+            },
+            biography: {
+              fullName: apiHero.biography['full-name'],
+              alterEgos: apiHero.biography['alter-egos'],
+              aliases: apiHero.biography.aliases,
+              placeOfBirth: apiHero.biography['place-of-birth'],
+              firstAppearance: apiHero.biography['first-appearance'],
+              publisher: apiHero.biography.publisher,
+              alignment: apiHero.biography.alignment
+            },
+            appearance: {
+              gender: apiHero.appearance.gender,
+              race: apiHero.appearance.race,
+              height: apiHero.appearance.height,
+              weight: apiHero.appearance.weight,
+              eyeColor: apiHero.appearance['eye-color'],
+              hairColor: apiHero.appearance['hair-color']
+            },
+            work: {
+              occupation: apiHero.work.occupation,
+              base: apiHero.work.base
+            },
+            connections: {
+              groupAffiliation: apiHero.connections['group-affiliation'],
+              relatives: apiHero.connections.relatives
+            },
+            image: {
+              url: apiHero.image.url
+            },
+            fetchedAt: new Date()
+          };
+          
+          // Save hero to database
+          const existingHero = await Superhero.findOne({ id: heroData.id });
+          let savedHero;
+          
+          if (existingHero) {
+            Object.assign(existingHero, heroData);
+            savedHero = await existingHero.save();
+          } else {
+            const newHero = new Superhero(heroData);
+            savedHero = await newHero.save();
+          }
+          
+          savedHeroes.push(savedHero);
+        } catch (error) {
+          console.error(`Error saving hero ${apiHero.name}:`, error);
+        }
+      }
+      
+      return savedHeroes;
+    }
+    
+    // If all searches fail, return empty array
+    return [];
   } catch (error) {
     console.error('Error searching heroes:', error);
     throw error;

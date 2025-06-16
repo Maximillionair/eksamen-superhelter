@@ -69,13 +69,17 @@ exports.searchSuperheroes = async (req, res) => {
     const query = req.query.query || '';
     const limit = parseInt(req.query.limit) || 20;
     
-    // Search heroes
+    // Search heroes - this will check database first, then API if needed
     const heroes = await superheroService.searchHeroes(query, limit);
+    
+    // Add a flag to show if heroes were from API
+    const source = heroes.length > 0 && !heroes[0].fetchedAt ? 'API' : 'Database';
     
     res.render('superhero/search', { 
       title: 'Search Results',
       heroes: heroes,
       query: query,
+      source: source,
       user: req.session.user
     });
   } catch (error) {
