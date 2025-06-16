@@ -3,8 +3,15 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Superhero = require('../models/Superhero');
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app')
+// Connect to MongoDB - make sure to use correct VM IP
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero';
+console.log('Attempting to connect to MongoDB at:', MONGODB_URI);
+
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 15000 // Give it more time to connect to remote VM
+})
   .then(() => console.log('MongoDB connected to VM'))
   .catch(err => {
     console.error('MongoDB connection error:', err);
@@ -17,14 +24,14 @@ async function removeTestHeroes() {
     // Get current count of heroes
     const beforeCount = await Superhero.countDocuments();
     console.log(`Before deletion: ${beforeCount} heroes in database`);
-    
-    // Remove test heroes (IDs 1001, 1002, 1003)
+      // Remove test heroes by ID and name
     console.log('Removing test heroes...');
+    
+    // Use both ID and name for maximum coverage
     const result = await Superhero.deleteMany({ 
       $or: [
-        { id: 1001 },
-        { id: 1002 },
-        { id: 1003 }
+        { id: { $in: [1001, 1002, 1003, 9001, 9002, 9003] } }, // Test IDs
+        { name: { $in: ['Test Hero 1', 'Test Hero 2', 'Test Hero 3'] } } // Test names
       ] 
     });
     
@@ -32,14 +39,21 @@ async function removeTestHeroes() {
     const afterCount = await Superhero.countDocuments();
     
     console.log(`Successfully removed ${result.deletedCount} test heroes`);
-    console.log(`After deletion: ${afterCount} heroes remaining in database`);
-  } catch (error) {
+    console.log(`After deletion: ${afterCount} heroes remaining in database`);  } catch (error) {
     console.error('Error removing test heroes:', error);
   } finally {
-    mongoose.disconnect();
-    console.log('Database connection closed');
+    try {
+      await mongoose.connection.close();
+      console.log('Database connection closed');
+    } catch (err) {
+      console.error('Error closing database connection:', err);
+    }
+    process.exit(0);
   }
 }
 
 // Run the function to remove heroes
-removeTestHeroes();
+removeTestHeroes().catch(err => {
+  console.error('Fatal error:', err);
+  process.exit(1);
+});
