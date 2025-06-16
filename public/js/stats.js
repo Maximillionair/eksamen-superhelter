@@ -9,11 +9,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // Update each bar with its accurate width
   statBars.forEach(bar => {
     const statValue = parseInt(bar.getAttribute('data-stat')) || 0;
-    bar.style.width = `${statValue}%`;
     
-    // Add appropriate text color based on contrast needs
-    if (statValue < 30) {
-      bar.classList.add('text-dark');
-    }
+    // Animate the bars
+    setTimeout(() => {
+      bar.style.width = `${statValue}%`;
+    }, 100);
   });
 });

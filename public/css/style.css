@@ -97,7 +97,7 @@ footer {
   overflow: hidden;
   border-radius: 0.5rem;
   background-color: #e9ecef;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.25rem;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -108,12 +108,33 @@ footer {
   text-align: center;
   white-space: nowrap;
   transition: width 1s ease;
+  /* Empty content for clean bars */
+  color: transparent;
+  font-size: 0;
 }
 
 /* Progress bar height */
 .progress-tall {
-  height: 25px;
+  height: 20px;
 }
+
+/* Stat label styles */
+.stat-label {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #000;
+  font-size: 0.9rem;
+}
+
+/* Stat colors to match bars */
+.progress-bar.bg-danger + .stat-value { color: #dc3545; }
+.progress-bar.bg-info + .stat-value { color: #0dcaf0; }
+.progress-bar.bg-warning + .stat-value { color: #ffc107; }
+.progress-bar.bg-success + .stat-value { color: #198754; }
+.progress-bar.bg-primary + .stat-value { color: #0d6efd; }
+.progress-bar.bg-dark + .stat-value { color: #212529; }
 
 /* Static width classes for compatibility */
 .w-0 { width: 0%; }
@@ -140,7 +161,8 @@ footer {
 
 /* Dynamic stat width utility class - use with inline style */
 .progress-bar[data-stat] {
-  width: var(--stat-width);
+  width: 0%; /* Start at 0% width for animation */
+  transition: width 0.8s ease-in-out; /* Smooth transition for width changes */
 }
 
 /* Form styles */
