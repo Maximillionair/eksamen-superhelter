@@ -1,0 +1,69 @@
+<!-- views/debug.ejs - Debug page to check superhero data -->
+  <header class="text-center mb-5">
+    <h1 class="display-4">Debug Information</h1>
+    <p class="lead">Troubleshooting page for superhero data</p>
+  </header>
+
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h3>Database Connection</h3>
+    </div>
+    <div class="card-body">
+      <p><strong>MongoDB URI:</strong> <%= dbInfo.host %></p>
+      <p><strong>Connection State:</strong> <%= dbInfo.connectionState %></p>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header bg-success text-white">
+      <h3>Superhero Data Summary</h3>
+    </div>
+    <div class="card-body">
+      <p><strong>Total Heroes in Database:</strong> <%= heroCount %></p>
+      <% if (heroCount === 0) { %>
+        <div class="alert alert-warning">
+          <strong>Warning!</strong> No superheroes found in the database. You may need to run a seeding script.
+          <pre class="mt-2">node scripts/check-and-seed-heroes.js</pre>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <% if (sampleHeroes.length > 0) { %>
+    <div class="card">
+      <div class="card-header bg-info text-white">
+        <h3>Sample Heroes in Database</h3>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Publisher</th>
+                <th>Image URL</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% sampleHeroes.forEach(hero => { %>
+                <tr>
+                  <td><%= hero.id %></td>
+                  <td><%= hero.name %></td>
+                  <td><%= hero.biography?.publisher || 'Unknown' %></td>
+                  <td>
+                    <% if (hero.image && hero.image.url) { %>
+                      <small><%= hero.image.url.substring(0, 30) %>...</small>
+                      <img src="<%= hero.image.url %>" alt="<%= hero.name %>" style="max-height: 50px;" class="ml-2">
+                    <% } else { %>
+                      No image URL
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% } %>

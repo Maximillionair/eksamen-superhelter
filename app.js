@@ -14,6 +14,7 @@ const indexRoutes = require('./routes/index');
 const authRoutes = require('./routes/auth');
 const superheroRoutes = require('./routes/superhero');
 const profileRoutes = require('./routes/profile');
+const debugRoutes = require('./routes/debug');
 
 // Initialize app
 const app = express();
@@ -75,6 +76,7 @@ app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/superhero', superheroRoutes);
 app.use('/profile', profileRoutes);
+app.use('/debug', debugRoutes);
 
 // 404 handler
 app.use((req, res) => {
