@@ -73,7 +73,13 @@ exports.getRegister = (req, res) => {
  */
 exports.postRegister = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, confirmPassword, rememberMe } = req.body;
+    
+    // Validate password confirmation
+    if (password !== confirmPassword) {
+      req.flash('error_msg', 'Passwords do not match');
+      return res.redirect('/auth/register');
+    }
     
     // Check if email already exists
     let user = await User.findOne({ email });
@@ -90,8 +96,7 @@ exports.postRegister = async (req, res) => {
       req.flash('error_msg', 'Username is already taken');
       return res.redirect('/auth/register');
     }
-    
-    // Create new user
+      // Create new user
     user = new User({
       username,
       email,
@@ -100,8 +105,18 @@ exports.postRegister = async (req, res) => {
     
     await user.save();
     
-    req.flash('success_msg', 'You are now registered and can log in');
-    res.redirect('/auth/login');
+    // Automatically log in the user after registration
+    // Generate user data for session
+    const userData = user.generateAuthToken();
+    req.session.user = userData;
+      // Generate and set JWT token in cookie if "remember me" is checked
+    if (rememberMe === 'on') {
+      const token = generateToken(userData);
+      res.cookie('token', token, jwtConfig.cookie);
+    }
+    
+    req.flash('success_msg', `Welcome ${username}! Your account was created successfully.`);
+    res.redirect('/'); // Redirect to home page instead of login
     
   } catch (error) {
     console.error('Registration error:', error);
