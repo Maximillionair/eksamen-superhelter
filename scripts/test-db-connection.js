@@ -2,17 +2,14 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 
-// The MongoDB URI from your .env file - explicit fallback to VM IP
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app';
+// Use direct MongoDB VM address for simplicity and consistency
+const MONGODB_URI = 'mongodb://10.12.87.70:27017/superhero-app';
+console.log(`Testing connection to MongoDB at: ${MONGODB_URI}`);
 
-// Print environment variable state for debugging
-console.log('MONGODB_URI environment variable:', process.env.MONGODB_URI ? 'Set' : 'Not set');
-console.log(`Attempting to connect to MongoDB at: ${MONGODB_URI}`);
-
-// Connection options with shorter timeout
+// Simple connection options
 const options = {
-  serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds instead of 30
-  connectTimeoutMS: 10000 // Give up initial connection after 10 seconds
+  serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
+  connectTimeoutMS: 10000  // Give up initial connection after 10 seconds
 };
 
 mongoose.connect(MONGODB_URI, options)

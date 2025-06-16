@@ -12,15 +12,14 @@ const mongoose = require('mongoose');
 const axios = require('axios');
 const Superhero = require('../models/Superhero');
 
-// Connect to MongoDB with explicit URI to avoid localhost issues
-const mongoUri = process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app';
-console.log(`Attempting to connect to MongoDB at: ${mongoUri}`);
+// Connect to MongoDB with fixed URI
+const mongoUri = 'mongodb://10.12.87.70:27017/superhero-app';
+console.log(`Connecting to MongoDB at: ${mongoUri}`);
 
 mongoose.connect(mongoUri)
-  .then(() => console.log(`MongoDB successfully connected to: ${mongoUri}`))
+  .then(() => console.log('MongoDB connected successfully'))
   .catch(err => {
     console.error('MongoDB connection error:', err);
-    console.error(err);
     process.exit(1);
   });
 
