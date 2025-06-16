@@ -7,6 +7,9 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  color: #212529; /* Improved text color for better contrast */
+  font-size: 16px; /* Base font size */
+  line-height: 1.6; /* Improved line-height for readability */
 }
 
 .container {
@@ -112,7 +115,7 @@ footer {
   height: 25px;
 }
 
-/* Dynamic width classes for progress bars */
+/* Static width classes for compatibility */
 .w-0 { width: 0%; }
 .w-5 { width: 5%; }
 .w-10 { width: 10%; }
@@ -135,8 +138,45 @@ footer {
 .w-95 { width: 95%; }
 .w-100 { width: 100%; }
 
+/* Dynamic stat width utility class - use with inline style */
+.progress-bar[data-stat] {
+  width: var(--stat-width);
+}
+
 /* Form styles */
 .form-control:focus {
   border-color: #86b7fe;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Enhanced text readability */
+.card-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #000;
+}
+
+.card-text {
+  color: #333;
+}
+
+.list-group-item strong {
+  color: #000;
+  font-weight: 700;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #000;
+  margin-bottom: 1rem;
+}
+
+.text-muted {
+  color: #555 !important;
+}
+
+/* Improve stat labels */
+.progress-bar {
+  font-weight: 600;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.5px;
 }
