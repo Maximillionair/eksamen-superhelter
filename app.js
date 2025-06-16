@@ -19,8 +19,11 @@ const PORT = process.env.PORT || 3000;
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/superhero-app')
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .then(() => console.log('MongoDB connected successfully'))
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+    console.log('Note: If you are trying to connect to VM at 10.12.87.70, ensure MongoDB is running and configured for remote access');
+  });
 
 // Set view engine
 app.set('view engine', 'ejs');

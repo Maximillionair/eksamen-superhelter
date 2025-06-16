@@ -5,7 +5,7 @@
 | Service    | IP Address      | Role                        | Machine Type       |
 |------------|-----------------|-----------------------------|--------------------|
 | Web Server | 192.168.1.10/24 | Express application server  | Ubuntu VM          |
-| Database   | 192.168.1.20/24 | MongoDB database server     | Ubuntu Server VM   |
+| Database   | 10.12.87.70/24  | MongoDB database server     | Ubuntu Server VM   |
 | DNS        | 192.168.1.30/24 | DNS server                  | Ubuntu Server VM   |
 | API Proxy  | 192.168.1.40/24 | API caching and proxy       | Ubuntu Server VM   |
 | Firewall   | 192.168.1.1/24  | Network security gateway    | pfSense VM         |
@@ -27,17 +27,11 @@
                         └──┬─────────┬─────────┬──┘
                            │         │         │
                            ▼         ▼         ▼
-             ┌───────────────┐ ┌─────────┐ ┌─────────┐
-             │  Web Server   │ │ Database│ │   DNS   │
-             │192.168.1.10/24│ │192.168.1│ │192.168.1│
-             │               │ │.20/24   │ │.30/24   │
+             ┌───────────────┐ ┌─────────┐ ┌─────────┐             │  Web Server   │ │ Database│ │   DNS   │
+             │10.12.87.68/24 │ │10.12.87.│ │10.12.87 │
+             │               │ │70/24    │ │.10/24   │
              └───────────────┘ └─────────┘ └─────────┘
-                      │
-                      ▼
-             ┌───────────────┐
-             │   API Proxy   │
-             │192.168.1.40/24│
-             └───────────────┘
+
 ```
 
 ## Security Configuration
@@ -48,7 +42,7 @@
 2. **Allow Rules**:
    - Allow HTTP/HTTPS (ports 80/443) to Web Server only
    - Allow DNS (port 53) to/from DNS Server only
-   - Allow MongoDB (port 27017) between Web Server and Database only
+   - Allow MongoDB (port 27017) between Web Server and Database VM (10.12.87.70) only
    - Allow SSH (port 22) from admin network only
 
 ### SSH Security
