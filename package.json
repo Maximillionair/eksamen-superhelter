@@ -2,9 +2,9 @@
   "name": "superhero-app",
   "version": "1.0.0",
   "description": "A web application for displaying and managing superheroes",
-  "main": "app.js",
-  "scripts": {
+  "main": "app.js",  "scripts": {
     "start": "node app.js",
+    "server": "node -r ./server-env.js app.js",
     "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

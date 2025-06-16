@@ -12,11 +12,15 @@ const mongoose = require('mongoose');
 const axios = require('axios');
 const Superhero = require('../models/Superhero');
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app')
-  .then(() => console.log('MongoDB connected to VM at 10.12.87.70'))
+// Connect to MongoDB with explicit URI to avoid localhost issues
+const mongoUri = process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app';
+console.log(`Attempting to connect to MongoDB at: ${mongoUri}`);
+
+mongoose.connect(mongoUri)
+  .then(() => console.log(`MongoDB successfully connected to: ${mongoUri}`))
   .catch(err => {
     console.error('MongoDB connection error:', err);
+    console.error(err);
     process.exit(1);
   });
 
