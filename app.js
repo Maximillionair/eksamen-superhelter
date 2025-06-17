@@ -138,22 +138,11 @@ app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/superhero', superheroRoutes);
 
-// Special handling for profile routes to ensure proper protocol
-app.use('/profile', (req, res, next) => {
-  // Log the profile request details
-  console.log('[PROFILE ROUTER] Handling profile request');
-  console.log('[PROFILE ROUTER] Protocol:', req.protocol);
-  console.log('[PROFILE ROUTER] Host:', req.headers.host);
-  console.log('[PROFILE ROUTER] Original URL:', req.originalUrl);
-  
-  // Continue to actual profile routes
-  return profileRoutes(req, res, next);
-});
+// Regular profile routes
+app.use('/profile', profileRoutes);
 
-app.use('/debug', debugRoutes); // Now using the unified debug routes variable
+app.use('/debug', debugRoutes); // Using unified debug routes only
 app.use('/api', apiRoutes);
-app.use('/simple-debug', require('./routes/simple-debug')); // Import directly
-app.use('/debug-profile', require('./routes/debug-profile')); // Debug routes for profile troubleshooting
 
 // 404 handler
 app.use((req, res) => {

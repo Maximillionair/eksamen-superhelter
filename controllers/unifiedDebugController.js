@@ -1,6 +1,7 @@
 // controllers/unifiedDebugController.js - Combined debug controller
 const Superhero = require('../models/Superhero');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
 /**
  * Debug controller with all diagnostic functions
@@ -112,8 +113,7 @@ module.exports = {
 
   /**
    * System information
-   */
-  systemInfo: (req, res) => {
+   */  systemInfo: (req, res) => {
     res.json({
       node: process.version,
       platform: process.platform,
@@ -125,5 +125,83 @@ module.exports = {
         mongoUri: process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app'
       }
     });
+  },
+
+  /**
+   * Debug database connection status
+   */
+  dbStatus: (req, res) => {
+    const connectionState = mongoose.connection.readyState;
+    const states = {
+      0: 'disconnected',
+      1: 'connected',
+      2: 'connecting',
+      3: 'disconnecting'
+    };
+    
+    res.json({
+      connectionState: states[connectionState] || 'unknown',
+      mongoUri: process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app',
+      sessionUser: req.session.user ? 'exists' : 'missing',
+      cookieToken: req.cookies.token ? 'exists' : 'missing'
+    });
+  },
+
+  /**
+   * Debug profile rendering without auth checks
+   */
+  directProfileRender: async (req, res) => {
+    try {
+      // Try to get user ID from session or JWT
+      let userId = null;
+      
+      if (req.session && req.session.user) {
+        userId = req.session.user.id;
+      } else if (req.cookies.token) {
+        try {
+          const jwt = require('../utils/jwt');
+          const decoded = jwt.verifyToken(req.cookies.token);
+          if (decoded) {
+            userId = decoded.sub;
+          }
+        } catch (error) {
+          console.error('Error decoding JWT:', error);
+        }
+      }
+      
+      if (!userId) {
+        return res.send({
+          error: 'No authentication found - cannot render profile'
+        });
+      }
+      
+      // Get user with favorites populated
+      const user = await User.findById(userId);
+      
+      if (!user) {
+        return res.send({
+          error: 'User not found in database'
+        });
+      }
+      
+      // Get favorite heroes
+      const favoriteHeroes = await Superhero.find({
+        id: { $in: user.favoriteHeroes }
+      });
+      
+      // Render the profile page
+      res.render('profile/index', {
+        title: 'My Profile (Debug)',
+        user: req.session.user,
+        profile: user,
+        favoriteHeroes: favoriteHeroes
+      });
+    } catch (error) {
+      console.error('Error in direct profile render:', error);
+      res.send({
+        error: 'Failed to render profile',
+        message: error.message
+      });
+    }
   }
 };
