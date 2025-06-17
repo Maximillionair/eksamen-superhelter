@@ -55,11 +55,19 @@ app.use(cookieParser());
 
 // Ensure HTTP protocol is used (disable HTTPS redirects)
 app.use((req, res, next) => {
+  // Log protocol information for debugging
+  console.log(`[PROTOCOL DEBUG] URL: ${req.url}, Protocol: ${req.protocol}, X-Forwarded-Proto: ${req.headers['x-forwarded-proto'] || 'none'}`);
+  
   // Force HTTP protocol for all routes
-  if (req.headers['x-forwarded-proto'] === 'https') {
-    // If behind a proxy that's forcing HTTPS
-    return res.redirect('http://' + req.headers.host + req.url);
+  if (req.protocol === 'https' || req.headers['x-forwarded-proto'] === 'https') {
+    // If using HTTPS, redirect to HTTP
+    const httpUrl = `http://${req.headers.host}${req.url}`;
+    console.log(`[PROTOCOL REDIRECT] Redirecting to: ${httpUrl}`);
+    return res.redirect(httpUrl);
   }
+  
+  // Add protocol info to locals for templates
+  res.locals.currentProtocol = req.protocol;
   next();
 });
 
@@ -86,8 +94,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Import debug auth routes
+// Import debug routes
 const debugAuthRoutes = require('./routes/debug-auth');
+const debugProfileRoutes = require('./routes/debug-profile');
 
 // Routes
 app.use('/', indexRoutes);
@@ -97,6 +106,7 @@ app.use('/profile', profileRoutes);
 app.use('/debug', debugRoutes);
 app.use('/api', apiRoutes);
 app.use('/debug-auth', debugAuthRoutes);
+app.use('/debug-profile', debugProfileRoutes);
 
 // 404 handler
 app.use((req, res) => {

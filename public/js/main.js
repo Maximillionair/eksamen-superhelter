@@ -2,6 +2,20 @@
 
 // Wait for DOM to load
 document.addEventListener('DOMContentLoaded', function() {
+  // Force all links to use HTTP protocol
+  if (window.location.protocol === 'https:') {
+    console.log('Detected HTTPS protocol, redirecting to HTTP');
+    window.location.href = window.location.href.replace('https://', 'http://');
+  }
+  
+  // Convert any HTTPS links to HTTP
+  document.querySelectorAll('a[href^="https://"]').forEach(link => {
+    // Only change internal links (same host)
+    if (link.host === window.location.host) {
+      link.href = link.href.replace('https://', 'http://');
+    }
+  });
+  
   // Enable all tooltips
   const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
   tooltipTriggerList.map(function (tooltipTriggerEl) {

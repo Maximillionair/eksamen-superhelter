@@ -7,12 +7,12 @@ const jwtConfig = require('../config/jwt');
  * Middleware to check if user is authenticated via session or JWT
  */
 exports.isAuthenticated = async (req, res, next) => {
-  console.log('isAuthenticated middleware called');
-  console.log('Protocol:', req.protocol);
-  console.log('X-Forwarded-Proto:', req.headers['x-forwarded-proto']);
-  console.log('Request URL:', req.originalUrl);
-  console.log('Session exists:', !!req.session);
-  console.log('User in session:', req.session && !!req.session.user);
+  console.log('[AUTH] isAuthenticated middleware called');
+  console.log('[AUTH] Protocol:', req.protocol);
+  console.log('[AUTH] X-Forwarded-Proto:', req.headers['x-forwarded-proto']);
+  console.log('[AUTH] Request URL:', req.originalUrl);
+  console.log('[AUTH] Session exists:', !!req.session);
+  console.log('[AUTH] User in session:', req.session && !!req.session.user);
   
   // Check for session authentication first
   if (req.session && req.session.user) {
