@@ -14,7 +14,7 @@ const indexRoutes = require('./routes/index');
 const authRoutes = require('./routes/auth');
 const superheroRoutes = require('./routes/superhero');
 const profileRoutes = require('./routes/profile');
-const unifiedDebugRoutes = require('./routes/unified-debug');
+const debugRoutes = require('./routes/unified-debug'); // Use unified debug routes
 const apiRoutes = require('./routes/api');
 
 // Initialize app
@@ -73,6 +73,10 @@ app.use(session({
 // Flash messages
 app.use(flash());
 
+// Add auth middleware to set user data
+const { setUserData } = require('./middleware/auth');
+app.use(setUserData);
+
 // Global variables middleware
 app.use((req, res, next) => {
   res.locals.success_msg = req.flash('success_msg');
@@ -84,17 +88,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Import routes
-const simpleDebugRoutes = require('./routes/simple-debug');
-
 // Routes
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/superhero', superheroRoutes);
 app.use('/profile', profileRoutes);
-app.use('/debug', unifiedDebugRoutes);
+app.use('/debug', debugRoutes); // Now using the unified debug routes variable
 app.use('/api', apiRoutes);
-app.use('/simple-debug', simpleDebugRoutes);
+app.use('/simple-debug', require('./routes/simple-debug')); // Import directly
 
 // 404 handler
 app.use((req, res) => {

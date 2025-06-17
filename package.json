@@ -7,6 +7,9 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "test-db": "node scripts/test-db-connection.js",
+    "init-db": "node scripts/init-db.js",
+    "quick-init": "node scripts/quick-init.js",
+    "check-heroes": "node scripts/check-heroes.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

@@ -7,43 +7,41 @@ const Superhero = require('../models/Superhero');
  */
 exports.getProfile = async (req, res) => {
   try {
-    // Use session user ID directly
+    // Check if user is in session
+    if (!req.session.user || !req.session.user.id) {
+      console.error('[PROFILE] No user in session');
+      req.flash('error_msg', 'You need to be logged in');
+      return res.redirect('/auth/login');
+    }
+
     const userId = req.session.user.id;
+    console.log('[PROFILE] Getting profile for user:', userId);
     
     // Get user with favorites populated
     const user = await User.findById(userId);
     
     if (!user) {
+      console.error('[PROFILE] User not found in database:', userId);
       req.flash('error_msg', 'User not found');
       return res.redirect('/');
     }
     
     // Get favorite heroes
     const favoriteHeroes = await Superhero.find({
-      id: { $in: user.favoriteHeroes }
+      id: { $in: user.favoriteHeroes || [] }
     });
     
-    // Ensure session has user info
-    if (!req.session.user) {
-      req.session.user = {
-        id: user._id,
-        username: user.username,
-        email: user.email
-      };
-      console.log('[PROFILE] User set in session from JWT');
-    }
-    
-    console.log('[PROFILE] Rendering profile page');
+    console.log('[PROFILE] Rendering profile page for user:', user.username);
     res.render('profile/index', {
       title: 'My Profile',
       user: req.session.user,
       profile: user,
-      favoriteHeroes: favoriteHeroes
+      favoriteHeroes: favoriteHeroes || []
     });
   } catch (error) {
     console.error('[PROFILE] Error getting profile:', error);
-    req.flash('error_msg', 'Failed to load profile');
-    return res.redirect('http://' + req.headers.host + '/');
+    req.flash('error_msg', 'Failed to load profile. Please try logging in again.');
+    return res.redirect('/auth/login');
   }
 };
 
@@ -180,6 +178,52 @@ exports.removeFromFavorites = async (req, res) => {
   } catch (error) {
     console.error('Error removing from favorites:', error);
     req.flash('error_msg', 'Failed to remove superhero from favorites');
+    res.redirect('/profile');
+  }
+};
+
+/**
+ * Change user password
+ */
+exports.changePassword = async (req, res) => {
+  try {
+    // Check if user is authenticated
+    if (!req.session.user || !req.session.user.id) {
+      req.flash('error_msg', 'You need to be logged in');
+      return res.redirect('/auth/login');
+    }
+    
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    
+    // Validate password confirmation
+    if (newPassword !== confirmPassword) {
+      req.flash('error_msg', 'New passwords do not match');
+      return res.redirect('/profile');
+    }
+    
+    // Find user
+    const user = await User.findById(req.session.user.id);
+    if (!user) {
+      req.flash('error_msg', 'User not found');
+      return res.redirect('/profile');
+    }
+    
+    // Verify current password
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      req.flash('error_msg', 'Current password is incorrect');
+      return res.redirect('/profile');
+    }
+    
+    // Update password
+    user.password = newPassword;
+    await user.save();
+    
+    req.flash('success_msg', 'Password updated successfully');
+    res.redirect('/profile');
+  } catch (error) {
+    console.error('Error changing password:', error);
+    req.flash('error_msg', 'Failed to change password');
     res.redirect('/profile');
   }
 };

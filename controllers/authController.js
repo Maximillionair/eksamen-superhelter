@@ -24,6 +24,7 @@ exports.postLogin = async (req, res) => {
     const user = await User.findOne({ email });
     
     if (!user) {
+      console.log(`Login attempt failed: No user with email ${email}`);
       req.flash('error_msg', 'Invalid email or password');
       return res.redirect('/auth/login');
     }
@@ -32,6 +33,7 @@ exports.postLogin = async (req, res) => {
     const isMatch = await user.comparePassword(password);
     
     if (!isMatch) {
+      console.log(`Login attempt failed: Invalid password for user ${email}`);
       req.flash('error_msg', 'Invalid email or password');
       return res.redirect('/auth/login');
     }
@@ -39,17 +41,20 @@ exports.postLogin = async (req, res) => {
     // Set user session
     const userData = user.generateAuthToken();
     req.session.user = userData;
-      // If "Remember Me" is checked, create a JWT token and store in cookie
+    console.log(`User logged in successfully: ${userData.username} (${userData.id})`);
+    
+    // If "Remember Me" is checked, create a JWT token and store in cookie
     if (rememberMe === 'on') {
       const token = generateToken(userData);
       
-      // Set the token as an HTTP-only cookie with secure: false
+      // Set the token as an HTTP-only cookie with secure: false for development
       const cookieOptions = {
         ...jwtConfig.cookie,
         secure: false, // Force HTTP compatibility
         sameSite: 'lax'
       };
       res.cookie('token', token, cookieOptions);
+      console.log('Remember me token set');
     }
     
     req.flash('success_msg', 'You are now logged in');
