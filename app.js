@@ -22,15 +22,29 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Connect to MongoDB with simple configuration
-// Always connect to the VM address (10.12.87.70) for consistency
-const mongoUri = process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app';
-console.log(`Connecting to MongoDB at: ${mongoUri}`);
+// Try local connection if VM connection fails
+const vmMongoUri = process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app';
+const localMongoUri = 'mongodb://localhost:27017/superhero-app';
 
-mongoose.connect(mongoUri)
-  .then(() => console.log('MongoDB connected successfully'))
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-    console.log('Ensure MongoDB is running on the VM and properly configured');
+console.log(`Attempting to connect to MongoDB at: ${vmMongoUri}`);
+
+// Try VM connection first, fall back to localhost
+mongoose.connect(vmMongoUri)
+  .then(() => {
+    console.log('MongoDB connected successfully to VM');
+  })
+  .catch(vmErr => {
+    console.error('MongoDB VM connection error:', vmErr);
+    console.log('Trying local MongoDB connection instead...');
+    
+    mongoose.connect(localMongoUri)
+      .then(() => {
+        console.log('MongoDB connected successfully to localhost');
+      })
+      .catch(localErr => {
+        console.error('MongoDB local connection error:', localErr);
+        console.log('Could not connect to any MongoDB instance. Profile functionality may not work.');
+      });
   });
 
 // Set view engine
@@ -96,6 +110,7 @@ app.use('/profile', profileRoutes);
 app.use('/debug', debugRoutes); // Now using the unified debug routes variable
 app.use('/api', apiRoutes);
 app.use('/simple-debug', require('./routes/simple-debug')); // Import directly
+app.use('/debug-profile', require('./routes/debug-profile')); // Debug routes for profile troubleshooting
 
 // 404 handler
 app.use((req, res) => {

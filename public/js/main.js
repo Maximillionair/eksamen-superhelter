@@ -2,9 +2,16 @@
 
 // Wait for DOM to load
 document.addEventListener('DOMContentLoaded', function() {
-  // No protocol forcing - let server handle this
-  console.log('Page loaded with protocol:', window.location.protocol);
+  // Check and fix protocol if needed
+  if (window.location.protocol === 'https:' && 
+      !window.location.host.includes('github.io') && 
+      !window.location.host.includes('herokuapp.com')) {
+    console.log('Detected HTTPS on non-production host. Switching to HTTP.');
+    window.location.href = window.location.href.replace('https:', 'http:');
+    return;
+  }
   
+  console.log('Page loaded with protocol:', window.location.protocol);
   // Enable all tooltips
   const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
   tooltipTriggerList.map(function (tooltipTriggerEl) {

@@ -43,19 +43,18 @@ exports.postLogin = async (req, res) => {
     req.session.user = userData;
     console.log(`User logged in successfully: ${userData.username} (${userData.id})`);
     
-    // If "Remember Me" is checked, create a JWT token and store in cookie
-    if (rememberMe === 'on') {
-      const token = generateToken(userData);
-      
-      // Set the token as an HTTP-only cookie with secure: false for development
-      const cookieOptions = {
-        ...jwtConfig.cookie,
-        secure: false, // Force HTTP compatibility
-        sameSite: 'lax'
-      };
-      res.cookie('token', token, cookieOptions);
-      console.log('Remember me token set');
-    }
+    // Always create a JWT token and store in cookie for session backup
+    const token = generateToken(userData);
+    
+    // Set the token as an HTTP-only cookie with secure: false for development
+    const cookieOptions = {
+      ...jwtConfig.cookie,
+      secure: false, // Force HTTP compatibility
+      sameSite: 'lax',
+      maxAge: rememberMe === 'on' ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000 // 7 days if remember me, 1 day otherwise
+    };
+    res.cookie('token', token, cookieOptions);
+    console.log('Authentication token set, remember me:', rememberMe === 'on');
     
     req.flash('success_msg', 'You are now logged in');
     res.redirect('/');

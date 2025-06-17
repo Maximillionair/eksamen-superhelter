@@ -1,12 +1,23 @@
 // controllers/profileController.js - Controller for user profile management
 const User = require('../models/User');
 const Superhero = require('../models/Superhero');
+const mongoose = require('mongoose');
 
 /**
  * Display user profile
  */
 exports.getProfile = async (req, res) => {
   try {
+    // Check MongoDB connection first
+    if (mongoose.connection.readyState !== 1) {
+      console.error('[PROFILE] MongoDB is not connected! Connection state:', mongoose.connection.readyState);
+      req.flash('error_msg', 'Database connection issue. Please try again later.');
+      return res.render('error', { 
+        title: 'Database Error', 
+        error: 'Could not connect to the database. Please try again later.' 
+      });
+    }
+
     // Check if user is in session
     if (!req.session.user || !req.session.user.id) {
       console.error('[PROFILE] No user in session');
@@ -17,8 +28,23 @@ exports.getProfile = async (req, res) => {
     const userId = req.session.user.id;
     console.log('[PROFILE] Getting profile for user:', userId);
     
-    // Get user with favorites populated
-    const user = await User.findById(userId);
+    // Get user with favorites populated - with timeout
+    let user;
+    try {
+      user = await Promise.race([
+        User.findById(userId),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Database query timeout')), 5000)
+        )
+      ]);
+    } catch (dbError) {
+      console.error('[PROFILE] Database query error or timeout:', dbError);
+      req.flash('error_msg', 'Database operation timed out. Please try again.');
+      return res.render('error', { 
+        title: 'Database Timeout', 
+        error: 'Database operation took too long. Please try again.' 
+      });
+    }
     
     if (!user) {
       console.error('[PROFILE] User not found in database:', userId);
@@ -26,10 +52,22 @@ exports.getProfile = async (req, res) => {
       return res.redirect('/');
     }
     
-    // Get favorite heroes
-    const favoriteHeroes = await Superhero.find({
-      id: { $in: user.favoriteHeroes || [] }
-    });
+    // Get favorite heroes with timeout
+    let favoriteHeroes = [];
+    if (user.favoriteHeroes && user.favoriteHeroes.length > 0) {
+      try {
+        favoriteHeroes = await Promise.race([
+          Superhero.find({ id: { $in: user.favoriteHeroes } }),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Heroes query timeout')), 5000)
+          )
+        ]);
+      } catch (heroError) {
+        console.error('[PROFILE] Error loading favorite heroes:', heroError);
+        // Continue without heroes if there's an error
+        favoriteHeroes = [];
+      }
+    }
     
     console.log('[PROFILE] Rendering profile page for user:', user.username);
     res.render('profile/index', {
@@ -40,8 +78,11 @@ exports.getProfile = async (req, res) => {
     });
   } catch (error) {
     console.error('[PROFILE] Error getting profile:', error);
-    req.flash('error_msg', 'Failed to load profile. Please try logging in again.');
-    return res.redirect('/auth/login');
+    req.flash('error_msg', 'Failed to load profile. Please try again.');
+    return res.render('error', { 
+      title: 'Profile Error', 
+      error: 'There was a problem loading your profile. Please try again later.' 
+    });
   }
 };
 

@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Superhero = require('../models/Superhero');
+const mongoose = require('mongoose');
 
 // Debug route that shows profile info without auth middleware
 router.get('/info', async (req, res) => {
@@ -131,6 +132,24 @@ router.get('/direct-render', async (req, res) => {
       stack: process.env.NODE_ENV === 'production' ? null : error.stack
     });
   }
+});
+
+// Debug route to check MongoDB connection
+router.get('/db-status', (req, res) => {
+  const connectionState = mongoose.connection.readyState;
+  const states = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting'
+  };
+  
+  res.json({
+    connectionState: states[connectionState] || 'unknown',
+    mongoUri: process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app',
+    sessionUser: req.session.user ? 'exists' : 'missing',
+    cookieToken: req.cookies.token ? 'exists' : 'missing'
+  });
 });
 
 module.exports = router;
