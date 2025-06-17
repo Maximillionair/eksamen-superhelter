@@ -32,6 +32,7 @@ console.log(`Attempting to connect to MongoDB at: ${vmMongoUri}`);
 mongoose.connect(vmMongoUri)
   .then(() => {
     console.log('MongoDB connected successfully to VM');
+    global.isVmEnvironment = true;
   })
   .catch(vmErr => {
     console.error('MongoDB VM connection error:', vmErr);
@@ -40,10 +41,12 @@ mongoose.connect(vmMongoUri)
     mongoose.connect(localMongoUri)
       .then(() => {
         console.log('MongoDB connected successfully to localhost');
+        global.isVmEnvironment = false;
       })
       .catch(localErr => {
         console.error('MongoDB local connection error:', localErr);
         console.log('Could not connect to any MongoDB instance. Profile functionality may not work.');
+        global.isVmEnvironment = false;
       });
   });
 
@@ -67,9 +70,29 @@ app.use(morgan('dev'));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+// Protocol normalization middleware - critical for VM environment
+app.use((req, res, next) => {
+  // Get actual protocol, accounting for proxies
+  let protocol = req.protocol;
+  if (req.headers['x-forwarded-proto']) {
+    protocol = req.headers['x-forwarded-proto'].split(',')[0];
+  }
+  
+  // Store the actual protocol for use in the app
+  req.actualProtocol = protocol;
+  
+  // For profile routes, ensure HTTP protocol only
+  if (req.path.startsWith('/profile') && protocol === 'https') {
+    console.log(`[PROTOCOL] Redirecting profile from HTTPS to HTTP: ${req.url}`);
+    return res.redirect(`http://${req.headers.host}${req.originalUrl}`);
+  }
+  
+  next();
+});
+
 // Simple middleware to log requests
 app.use((req, res, next) => {
-  console.log(`[REQUEST] ${req.method} ${req.url}`);
+  console.log(`[REQUEST] ${req.method} ${req.url} (Protocol: ${req.actualProtocol || req.protocol})`);
   next();
 });
 
@@ -97,8 +120,16 @@ app.use((req, res, next) => {
   res.locals.error_msg = req.flash('error_msg');
   res.locals.error = req.flash('error');
   res.locals.user = req.session.user || null;
-  // Add base URL for templates to use in links - forcing HTTP for compatibility
+  
+  // Determine if we're on the VM or localhost for URL generation
+  const isVM = global.isVmEnvironment === true;
+  console.log(`Request environment: ${isVM ? 'VM' : 'Local'}`);
+  
+  // Add base URL for templates to use in links
+  // On VM, we need absolute urls with the correct protocol
   res.locals.baseUrl = `http://${req.headers.host}`;
+  res.locals.isVmEnvironment = isVM;
+  
   next();
 });
 
@@ -106,7 +137,19 @@ app.use((req, res, next) => {
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/superhero', superheroRoutes);
-app.use('/profile', profileRoutes);
+
+// Special handling for profile routes to ensure proper protocol
+app.use('/profile', (req, res, next) => {
+  // Log the profile request details
+  console.log('[PROFILE ROUTER] Handling profile request');
+  console.log('[PROFILE ROUTER] Protocol:', req.protocol);
+  console.log('[PROFILE ROUTER] Host:', req.headers.host);
+  console.log('[PROFILE ROUTER] Original URL:', req.originalUrl);
+  
+  // Continue to actual profile routes
+  return profileRoutes(req, res, next);
+});
+
 app.use('/debug', debugRoutes); // Now using the unified debug routes variable
 app.use('/api', apiRoutes);
 app.use('/simple-debug', require('./routes/simple-debug')); // Import directly

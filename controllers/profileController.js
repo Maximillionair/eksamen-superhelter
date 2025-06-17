@@ -8,6 +8,17 @@ const mongoose = require('mongoose');
  */
 exports.getProfile = async (req, res) => {
   try {
+    // Log complete request details for debugging
+    console.log('[PROFILE] Request details:');
+    console.log('  - URL:', req.originalUrl);
+    console.log('  - Method:', req.method);
+    console.log('  - Protocol:', req.protocol);
+    console.log('  - Host:', req.headers.host);
+    console.log('  - User-Agent:', req.headers['user-agent']);
+    console.log('  - Environment:', global.isVmEnvironment ? 'VM' : 'Local');
+    console.log('  - Session exists:', !!req.session);
+    console.log('  - User in session:', !!(req.session && req.session.user));
+
     // Check MongoDB connection first
     if (mongoose.connection.readyState !== 1) {
       console.error('[PROFILE] MongoDB is not connected! Connection state:', mongoose.connection.readyState);

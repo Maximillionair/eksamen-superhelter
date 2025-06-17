@@ -24,13 +24,22 @@
       
       <ul class="navbar-nav">        <% if (locals.user) { %>
           <li class="nav-item">
-            <a class="nav-link" href="/profile" onclick="event.preventDefault(); window.location.href = 'http://' + window.location.host + '/profile';">
+            <a class="nav-link" href="#" onclick="event.preventDefault(); navigateToProfile();">
               <i class="fas fa-user me-1"></i><%= user.username %>
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/auth/logout">Logout</a>
           </li>
+          
+          <script>
+            function navigateToProfile() {
+              // Always use HTTP for profile navigation
+              const profileUrl = 'http://' + window.location.host + '/profile';
+              console.log('Navigating to profile via:', profileUrl);
+              window.location.href = profileUrl;
+            }
+          </script>
         <% } else { %>
           <li class="nav-item">
             <a class="nav-link" href="/auth/login">Login</a>

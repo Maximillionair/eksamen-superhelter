@@ -2,16 +2,19 @@
 
 // Wait for DOM to load
 document.addEventListener('DOMContentLoaded', function() {
-  // Check and fix protocol if needed
-  if (window.location.protocol === 'https:' && 
-      !window.location.host.includes('github.io') && 
-      !window.location.host.includes('herokuapp.com')) {
-    console.log('Detected HTTPS on non-production host. Switching to HTTP.');
-    window.location.href = window.location.href.replace('https:', 'http:');
+  console.log('Page loaded with protocol:', window.location.protocol);
+  
+  // Fix for VM profile access issues - if on the profile page with HTTPS, switch to HTTP
+  if (window.location.pathname.startsWith('/profile') && window.location.protocol === 'https:') {
+    console.log('⚠️ Detected HTTPS on profile page. Switching to HTTP for compatibility.');
+    const httpUrl = window.location.href.replace('https:', 'http:');
+    console.log('Redirecting to:', httpUrl);
+    window.location.href = httpUrl;
     return;
   }
   
-  console.log('Page loaded with protocol:', window.location.protocol);
+  // Fix profile links to always use HTTP
+  fixProfileLinks();
   // Enable all tooltips
   const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
   tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -26,7 +29,6 @@ document.addEventListener('DOMContentLoaded', function() {
       bsAlert.close();
     }, 5000);
   });
-
   // Form validation
   const forms = document.querySelectorAll('.needs-validation');
   Array.from(forms).forEach(form => {
@@ -39,3 +41,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }, false);
   });
 });
+
+// Fix all links to profile pages to use HTTP explicitly
+function fixProfileLinks() {
+  // Find all links going to profile pages
+  const profileLinks = document.querySelectorAll('a[href^="/profile"]');
+  
+  profileLinks.forEach(link => {
+    // Add a click handler to ensure HTTP protocol
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const profileUrl = 'http://' + window.location.host + link.getAttribute('href');
+      console.log('Navigating to profile via:', profileUrl);
+      window.location.href = profileUrl;
+    });
+  });
+  
+  console.log(`Fixed ${profileLinks.length} profile links to use HTTP`);
+}
