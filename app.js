@@ -14,7 +14,7 @@ const indexRoutes = require('./routes/index');
 const authRoutes = require('./routes/auth');
 const superheroRoutes = require('./routes/superhero');
 const profileRoutes = require('./routes/profile');
-const debugRoutes = require('./routes/debug');
+const unifiedDebugRoutes = require('./routes/unified-debug');
 const apiRoutes = require('./routes/api');
 
 // Initialize app
@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 3000;
 
 // Connect to MongoDB with simple configuration
 // Always connect to the VM address (10.12.87.70) for consistency
-const mongoUri = 'mongodb://10.12.87.70:27017/superhero-app';
+const mongoUri = process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app';
 console.log(`Connecting to MongoDB at: ${mongoUri}`);
 
 mongoose.connect(mongoUri)
@@ -81,7 +81,7 @@ app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/superhero', superheroRoutes);
 app.use('/profile', profileRoutes);
-app.use('/debug', debugRoutes);
+app.use('/debug', unifiedDebugRoutes);
 app.use('/api', apiRoutes);
 
 // 404 handler
