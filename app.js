@@ -53,21 +53,9 @@ app.use(morgan('dev'));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
-// Ensure HTTP protocol is used (disable HTTPS redirects)
+// Simple middleware to log requests
 app.use((req, res, next) => {
-  // Log protocol information for debugging
-  console.log(`[PROTOCOL DEBUG] URL: ${req.url}, Protocol: ${req.protocol}, X-Forwarded-Proto: ${req.headers['x-forwarded-proto'] || 'none'}`);
-  
-  // Force HTTP protocol for all routes
-  if (req.protocol === 'https' || req.headers['x-forwarded-proto'] === 'https') {
-    // If using HTTPS, redirect to HTTP
-    const httpUrl = `http://${req.headers.host}${req.url}`;
-    console.log(`[PROTOCOL REDIRECT] Redirecting to: ${httpUrl}`);
-    return res.redirect(httpUrl);
-  }
-  
-  // Add protocol info to locals for templates
-  res.locals.currentProtocol = req.protocol;
+  console.log(`[REQUEST] ${req.method} ${req.url}`);
   next();
 });
 
@@ -91,12 +79,13 @@ app.use((req, res, next) => {
   res.locals.error_msg = req.flash('error_msg');
   res.locals.error = req.flash('error');
   res.locals.user = req.session.user || null;
+  // Add base URL for templates to use in links
+  res.locals.baseUrl = `${req.protocol}://${req.headers.host}`;
   next();
 });
 
-// Import debug routes
-const debugAuthRoutes = require('./routes/debug-auth');
-const debugProfileRoutes = require('./routes/debug-profile');
+// Import routes
+const simpleDebugRoutes = require('./routes/simple-debug');
 
 // Routes
 app.use('/', indexRoutes);
@@ -105,8 +94,7 @@ app.use('/superhero', superheroRoutes);
 app.use('/profile', profileRoutes);
 app.use('/debug', debugRoutes);
 app.use('/api', apiRoutes);
-app.use('/debug-auth', debugAuthRoutes);
-app.use('/debug-profile', debugProfileRoutes);
+app.use('/simple-debug', simpleDebugRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -6,43 +6,16 @@ const Superhero = require('../models/Superhero');
  * Display user profile
  */
 exports.getProfile = async (req, res) => {
-  console.log('[PROFILE] getProfile controller called');
-  console.log('[PROFILE] Protocol:', req.protocol);
-  console.log('[PROFILE] X-Forwarded-Proto:', req.headers['x-forwarded-proto'] || 'none');
-  
   try {
-    // Get user ID from session or JWT
-    let userId = null;
-    
-    if (req.session && req.session.user) {
-      userId = req.session.user.id;
-      console.log('[PROFILE] User ID from session:', userId);
-    } else if (req.cookies.token) {
-      try {
-        const jwt = require('../utils/jwt');
-        const decoded = jwt.verifyToken(req.cookies.token);
-        if (decoded) {
-          userId = decoded.sub;
-          console.log('[PROFILE] User ID from JWT:', userId);
-        }
-      } catch (error) {
-        console.error('[PROFILE] Error decoding JWT:', error);
-      }
-    }
-    
-    if (!userId) {
-      console.log('[PROFILE] No user ID found, redirecting to login');
-      req.flash('error_msg', 'Please log in to access your profile');
-      return res.redirect('http://' + req.headers.host + '/auth/login');
-    }
+    // Use session user ID directly
+    const userId = req.session.user.id;
     
     // Get user with favorites populated
     const user = await User.findById(userId);
     
     if (!user) {
-      console.log('[PROFILE] User not found in database');
       req.flash('error_msg', 'User not found');
-      return res.redirect('http://' + req.headers.host + '/');
+      return res.redirect('/');
     }
     
     // Get favorite heroes
