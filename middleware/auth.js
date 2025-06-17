@@ -7,19 +7,31 @@ const jwtConfig = require('../config/jwt');
  * Middleware to check if user is authenticated via session or JWT
  */
 exports.isAuthenticated = async (req, res, next) => {
+  // Simple check for user in session
+  if (req.session && req.session.user) {
+    return next();
+  }
+  
   // Check for session authentication first
   if (req.session && req.session.user) {
+    console.log('User authenticated via session');
     return next();
   }
   
   // If no session, check for JWT token in cookies
   const token = req.cookies.token;
+  console.log('JWT token exists:', !!token);
+  
   if (token) {
     const decoded = verifyToken(token);
+    console.log('JWT decoded:', !!decoded);
+    
     if (decoded) {
       try {
         // Find user by ID from token
         const user = await User.findById(decoded.sub).select('-password');
+        console.log('User found from token:', !!user);
+        
         if (user) {
           // Set user in session and locals
           req.session.user = {
@@ -28,6 +40,7 @@ exports.isAuthenticated = async (req, res, next) => {
             email: user.email
           };
           res.locals.user = req.session.user;
+          console.log('User set in session from token');
           return next();
         }
       } catch (error) {
@@ -36,12 +49,16 @@ exports.isAuthenticated = async (req, res, next) => {
     }
     
     // If token is invalid, clear the cookie
-    res.clearCookie('token');
+    console.log('Clearing invalid token cookie');
+    res.clearCookie('token', { 
+      httpOnly: true, 
+      secure: false,
+      sameSite: 'lax'
+    });
   }
-  
-  // No valid session or token
-  req.flash('error_msg', 'You need to be logged in to view this page');
-  res.redirect('/auth/login');
+    // No valid authentication, redirect to login
+  req.flash('error_msg', 'Please log in to view this page');
+  return res.redirect('/auth/login');
 };
 
 /**

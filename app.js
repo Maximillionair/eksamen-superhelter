@@ -53,13 +53,19 @@ app.use(morgan('dev'));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+// Simple middleware to log requests
+app.use((req, res, next) => {
+  console.log(`[REQUEST] ${req.method} ${req.url}`);
+  next();
+});
+
 // Session middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || 'superhero-secret',
   resave: false,
   saveUninitialized: true,
   cookie: { 
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // Set to false to allow HTTP access
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
@@ -73,8 +79,13 @@ app.use((req, res, next) => {
   res.locals.error_msg = req.flash('error_msg');
   res.locals.error = req.flash('error');
   res.locals.user = req.session.user || null;
+  // Add base URL for templates to use in links
+  res.locals.baseUrl = `${req.protocol}://${req.headers.host}`;
   next();
 });
+
+// Import routes
+const simpleDebugRoutes = require('./routes/simple-debug');
 
 // Routes
 app.use('/', indexRoutes);
@@ -83,6 +94,7 @@ app.use('/superhero', superheroRoutes);
 app.use('/profile', profileRoutes);
 app.use('/debug', unifiedDebugRoutes);
 app.use('/api', apiRoutes);
+app.use('/simple-debug', simpleDebugRoutes);
 
 // 404 handler
 app.use((req, res) => {

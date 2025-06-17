@@ -7,8 +7,11 @@ const Superhero = require('../models/Superhero');
  */
 exports.getProfile = async (req, res) => {
   try {
+    // Use session user ID directly
+    const userId = req.session.user.id;
+    
     // Get user with favorites populated
-    const user = await User.findById(req.session.user.id);
+    const user = await User.findById(userId);
     
     if (!user) {
       req.flash('error_msg', 'User not found');
@@ -20,6 +23,17 @@ exports.getProfile = async (req, res) => {
       id: { $in: user.favoriteHeroes }
     });
     
+    // Ensure session has user info
+    if (!req.session.user) {
+      req.session.user = {
+        id: user._id,
+        username: user.username,
+        email: user.email
+      };
+      console.log('[PROFILE] User set in session from JWT');
+    }
+    
+    console.log('[PROFILE] Rendering profile page');
     res.render('profile/index', {
       title: 'My Profile',
       user: req.session.user,
@@ -27,9 +41,9 @@ exports.getProfile = async (req, res) => {
       favoriteHeroes: favoriteHeroes
     });
   } catch (error) {
-    console.error('Error getting profile:', error);
+    console.error('[PROFILE] Error getting profile:', error);
     req.flash('error_msg', 'Failed to load profile');
-    res.redirect('/');
+    return res.redirect('http://' + req.headers.host + '/');
   }
 };
 

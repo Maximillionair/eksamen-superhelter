@@ -1,5 +1,5 @@
 <!-- views/partials/navbar.ejs - Navigation bar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
   <div class="container">
     <a class="navbar-brand" href="/">
       <i class="fas fa-mask me-2"></i>Superhero Database
@@ -22,8 +22,7 @@
         </button>
       </form>
       
-      <ul class="navbar-nav">
-        <% if (locals.user) { %>
+      <ul class="navbar-nav">        <% if (locals.user) { %>
           <li class="nav-item">
             <a class="nav-link" href="/profile">
               <i class="fas fa-user me-1"></i><%= user.username %>

@@ -2,6 +2,9 @@
 
 // Wait for DOM to load
 document.addEventListener('DOMContentLoaded', function() {
+  // No protocol forcing - let server handle this
+  console.log('Page loaded with protocol:', window.location.protocol);
+  
   // Enable all tooltips
   const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
   tooltipTriggerList.map(function (tooltipTriggerEl) {
