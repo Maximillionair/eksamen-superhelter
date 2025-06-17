@@ -83,8 +83,8 @@ app.use((req, res, next) => {
   res.locals.error_msg = req.flash('error_msg');
   res.locals.error = req.flash('error');
   res.locals.user = req.session.user || null;
-  // Add base URL for templates to use in links
-  res.locals.baseUrl = `${req.protocol}://${req.headers.host}`;
+  // Add base URL for templates to use in links - forcing HTTP for compatibility
+  res.locals.baseUrl = `http://${req.headers.host}`;
   next();
 });
 
