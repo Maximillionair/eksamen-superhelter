@@ -39,7 +39,7 @@ exports.getIndex = async (req, res) => {
  */
 exports.getSuperhero = async (req, res) => {
   try {
-    const heroId = req.params.id;
+    const heroId = parseInt(req.params.id);
     
     // Fetch hero (will get from database if available and recent, or fetch from API if needed)
     const hero = await superheroService.fetchAndStoreSingleHero(heroId);
@@ -49,9 +49,15 @@ exports.getSuperhero = async (req, res) => {
       return res.redirect('/');
     }
     
+    // Get previous and next hero IDs
+    const prevHero = await superheroService.findAdjacentHero(heroId, 'prev');
+    const nextHero = await superheroService.findAdjacentHero(heroId, 'next');
+    
     res.render('superhero/details', { 
       title: hero.name,
       hero: hero,
+      prevHeroId: prevHero ? prevHero.id : null,
+      nextHeroId: nextHero ? nextHero.id : null,
       user: req.session.user
     });
   } catch (error) {

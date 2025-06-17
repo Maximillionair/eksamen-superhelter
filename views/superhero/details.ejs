@@ -1,4 +1,19 @@
 <!-- views/superhero/details.ejs - Individual superhero page -->
+  <!-- Hero navigation arrows -->
+  <div class="hero-navigation">
+    <% if (prevHeroId) { %>
+      <a href="/superhero/<%= prevHeroId %>" class="hero-nav-btn hero-nav-prev" title="Previous Hero">
+        <i class="fas fa-chevron-left"></i>
+      </a>
+    <% } %>
+    
+    <% if (nextHeroId) { %>
+      <a href="/superhero/<%= nextHeroId %>" class="hero-nav-btn hero-nav-next" title="Next Hero">
+        <i class="fas fa-chevron-right"></i>
+      </a>
+    <% } %>
+  </div>
+  
   <div class="card shadow-sm mb-4">
     <div class="card-body">
       <div class="row">

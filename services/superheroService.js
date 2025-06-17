@@ -242,6 +242,30 @@ exports.searchSuperheroAPI = async (name) => {
 };
 
 /**
+ * Find adjacent hero (previous or next) relative to a given hero ID
+ * @param {Number} heroId - ID of the reference hero
+ * @param {String} direction - 'prev' or 'next'
+ * @returns {Object} - The found hero document or null
+ */
+exports.findAdjacentHero = async (heroId, direction) => {
+  try {
+    const query = direction === 'prev' 
+      ? { id: { $lt: heroId } } // Previous hero has a lower ID
+      : { id: { $gt: heroId } }; // Next hero has a higher ID
+    
+    const sort = direction === 'prev' 
+      ? { id: -1 } // For previous, get the highest ID below current
+      : { id: 1 };  // For next, get the lowest ID above current
+    
+    const hero = await Superhero.findOne(query).sort(sort);
+    return hero;
+  } catch (error) {
+    console.error(`Error finding ${direction} hero for ${heroId}:`, error);
+    return null;
+  }
+};
+
+/**
  * Transform API data to match our schema
  */
 function transformApiData(apiData) {
