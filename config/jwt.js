@@ -4,11 +4,10 @@ module.exports = {
   options: {
     expiresIn: '7d', // Token expiration time (7 days)
     issuer: 'superhero-app'
-  },
-  cookie: {
+  },  cookie: {
     httpOnly: true, // Prevents JavaScript access
-    secure: process.env.NODE_ENV === 'production', // True in production for HTTPS
-    sameSite: 'strict', // Protection against CSRF
+    secure: false, // Set to false to allow HTTP access
+    sameSite: 'lax', // Changed to 'lax' to be more compatible with different browsers
     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
   }
 };
