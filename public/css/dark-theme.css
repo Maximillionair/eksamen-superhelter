@@ -1,0 +1,283 @@
+/* public/css/dark-theme.css - Dark mode with high contrast */
+
+/* Base theme */
+:root {
+  --dark-bg: #121212;
+  --dark-surface: #1e1e1e;
+  --dark-card: #2d2d2d;
+  --dark-card-hover: #3a3a3a;
+  --dark-text: #ffffff;
+  --dark-text-secondary: #d2d2d2;
+  --accent-color: #bb86fc;
+  --accent-secondary: #03dac6;
+  --accent-danger: #ff5252;
+  --accent-warning: #ffd600;
+  --accent-success: #00e676;
+}
+
+/* Global styles */
+body {
+  background-color: var(--dark-bg);
+  color: var(--dark-text);
+}
+
+/* Links */
+a {
+  color: var(--accent-color);
+}
+
+a:hover {
+  color: var(--accent-secondary);
+}
+
+/* Navbar */
+.navbar {
+  background-color: #000000 !important;
+  border-bottom: 1px solid #333;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: #ffffff;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus {
+  color: var(--accent-color);
+}
+
+/* Cards */
+.card {
+  background-color: var(--dark-card);
+  border: 1px solid #444;
+}
+
+.card:hover {
+  box-shadow: 0 0 15px rgba(187, 134, 252, 0.3);
+}
+
+.card-body {
+  background-color: var(--dark-card);
+}
+
+.card-title {
+  color: var(--dark-text);
+}
+
+.card-text {
+  color: var(--dark-text-secondary);
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.btn-primary:hover {
+  background-color: #9965db;
+  border-color: #9965db;
+}
+
+.btn-outline-primary {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--accent-color);
+  color: #000000;
+}
+
+.btn-outline-danger {
+  border-color: var(--accent-danger);
+  color: var(--accent-danger);
+}
+
+.btn-danger, .bg-danger {
+  background-color: var(--accent-danger) !important;
+}
+
+.btn-success, .bg-success {
+  background-color: var(--accent-success) !important;
+}
+
+.btn-warning, .bg-warning {
+  background-color: var(--accent-warning) !important;
+  color: #000;
+}
+
+.btn-info, .bg-info {
+  background-color: var(--accent-secondary) !important;
+  color: #000;
+}
+
+/* Form elements */
+.form-control {
+  background-color: #333;
+  border: 1px solid #555;
+  color: var(--dark-text);
+}
+
+.form-control:focus {
+  background-color: #3a3a3a;
+  color: var(--dark-text);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.25rem rgba(187, 134, 252, 0.25);
+}
+
+.form-control:focus,
+.btn:focus,
+a:focus {
+  box-shadow: 0 0 0 4px rgba(187, 134, 252, 0.5);
+}
+
+.form-check-input:checked {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+/* Text and backgrounds */
+.text-muted {
+  color: #aaaaaa !important;
+}
+
+.bg-dark {
+  background-color: #000000 !important;
+}
+
+.bg-light {
+  background-color: var(--dark-card) !important;
+  color: var(--dark-text);
+}
+
+.text-dark {
+  color: var(--dark-text) !important;
+}
+
+/* Lists */
+.list-group-item {
+  background-color: var(--dark-card);
+  color: var(--dark-text);
+  border-color: #444;
+}
+
+/* Progress bars */
+.progress {
+  background-color: #333;
+}
+
+.stat-label {
+  color: var(--dark-text);
+}
+
+.progress-bar.bg-danger { background-color: #ff453a !important; }
+.progress-bar.bg-success { background-color: #30d158 !important; }
+.progress-bar.bg-warning { background-color: #ffd60a !important; }
+.progress-bar.bg-info { background-color: #0a84ff !important; }
+.progress-bar.bg-primary { background-color: #5e5ce6 !important; }
+
+/* Alerts */
+.alert-info {
+  background-color: rgba(3, 218, 198, 0.15);
+  border-color: rgba(3, 218, 198, 0.4);
+  color: #03dac6;
+}
+
+.alert-success {
+  background-color: rgba(0, 230, 118, 0.15);
+  border-color: rgba(0, 230, 118, 0.4);
+  color: #00e676;
+}
+
+.alert-danger {
+  background-color: rgba(255, 82, 82, 0.15);
+  border-color: rgba(255, 82, 82, 0.4);
+  color: #ff5252;
+}
+
+.alert-warning {
+  background-color: rgba(255, 214, 0, 0.15);
+  border-color: rgba(255, 214, 0, 0.4);
+  color: #ffd600;
+}
+
+/* Footer */
+footer {
+  background-color: #000000 !important;
+  border-top: 1px solid #333;
+}
+
+footer a {
+  color: var(--accent-color) !important;
+}
+
+/* High contrast focus outlines for accessibility */
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--accent-color) !important;
+  outline-offset: 2px;
+}
+
+/* Modal */
+.modal-content {
+  background-color: var(--dark-surface);
+  color: var(--dark-text);
+}
+
+.modal-header, .modal-footer {
+  border-color: #444;
+}
+
+/* Tables */
+table {
+  color: var(--dark-text);
+}
+
+.table {
+  color: var(--dark-text);
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(187, 134, 252, 0.1);
+}
+
+/* Pagination */
+.page-item.disabled .page-link {
+  background-color: #333;
+  border-color: #444;
+}
+
+.page-link {
+  background-color: var(--dark-card);
+  border-color: #444;
+  color: var(--accent-color);
+}
+
+.page-item.active .page-link {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+/* Badge */
+.badge {
+  color: #000;
+}
+
+.badge.bg-secondary {
+  background-color: var(--accent-color) !important;
+}
+
+/* Override Bootstrap's text utilities for better contrast */
+.text-primary { color: #9b7cff !important; }
+.text-success { color: #30d158 !important; }
+.text-danger { color: #ff453a !important; }
+.text-warning { color: #ffd60a !important; }
+.text-info { color: #64d2ff !important; }
+
+/* Improve contrast in dark variant alerts */
+.alert {
+  border-width: 2px;
+}
