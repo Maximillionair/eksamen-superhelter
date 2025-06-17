@@ -53,6 +53,16 @@ app.use(morgan('dev'));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+// Ensure HTTP protocol is used (disable HTTPS redirects)
+app.use((req, res, next) => {
+  // Force HTTP protocol for all routes
+  if (req.headers['x-forwarded-proto'] === 'https') {
+    // If behind a proxy that's forcing HTTPS
+    return res.redirect('http://' + req.headers.host + req.url);
+  }
+  next();
+});
+
 // Session middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || 'superhero-secret',
@@ -76,6 +86,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Import debug auth routes
+const debugAuthRoutes = require('./routes/debug-auth');
+
 // Routes
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
@@ -83,6 +96,7 @@ app.use('/superhero', superheroRoutes);
 app.use('/profile', profileRoutes);
 app.use('/debug', debugRoutes);
 app.use('/api', apiRoutes);
+app.use('/debug-auth', debugAuthRoutes);
 
 // 404 handler
 app.use((req, res) => {

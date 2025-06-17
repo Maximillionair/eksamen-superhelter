@@ -39,13 +39,17 @@ exports.postLogin = async (req, res) => {
     // Set user session
     const userData = user.generateAuthToken();
     req.session.user = userData;
-    
-    // If "Remember Me" is checked, create a JWT token and store in cookie
+      // If "Remember Me" is checked, create a JWT token and store in cookie
     if (rememberMe === 'on') {
       const token = generateToken(userData);
       
-      // Set the token as an HTTP-only cookie
-      res.cookie('token', token, jwtConfig.cookie);
+      // Set the token as an HTTP-only cookie with secure: false
+      const cookieOptions = {
+        ...jwtConfig.cookie,
+        secure: false, // Force HTTP compatibility
+        sameSite: 'lax'
+      };
+      res.cookie('token', token, cookieOptions);
     }
     
     req.flash('success_msg', 'You are now logged in');
@@ -108,11 +112,15 @@ exports.postRegister = async (req, res) => {
     // Automatically log in the user after registration
     // Generate user data for session
     const userData = user.generateAuthToken();
-    req.session.user = userData;
-      // Generate and set JWT token in cookie if "remember me" is checked
+    req.session.user = userData;    // Generate and set JWT token in cookie if "remember me" is checked
     if (rememberMe === 'on') {
       const token = generateToken(userData);
-      res.cookie('token', token, jwtConfig.cookie);
+      const cookieOptions = {
+        ...jwtConfig.cookie,
+        secure: false, // Force HTTP compatibility
+        sameSite: 'lax'
+      };
+      res.cookie('token', token, cookieOptions);
     }
     
     req.flash('success_msg', `Welcome ${username}! Your account was created successfully.`);
@@ -129,8 +137,12 @@ exports.postRegister = async (req, res) => {
  * Handle logout
  */
 exports.logout = (req, res) => {
-  // Clear the JWT token cookie
-  res.clearCookie('token');
+  // Clear the JWT token cookie with correct options
+  res.clearCookie('token', {
+    httpOnly: true, 
+    secure: false,
+    sameSite: 'lax'
+  });
   
   // Destroy the session
   req.session.destroy(err => {

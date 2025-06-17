@@ -7,19 +7,33 @@ const jwtConfig = require('../config/jwt');
  * Middleware to check if user is authenticated via session or JWT
  */
 exports.isAuthenticated = async (req, res, next) => {
+  console.log('isAuthenticated middleware called');
+  console.log('Protocol:', req.protocol);
+  console.log('X-Forwarded-Proto:', req.headers['x-forwarded-proto']);
+  console.log('Request URL:', req.originalUrl);
+  console.log('Session exists:', !!req.session);
+  console.log('User in session:', req.session && !!req.session.user);
+  
   // Check for session authentication first
   if (req.session && req.session.user) {
+    console.log('User authenticated via session');
     return next();
   }
   
   // If no session, check for JWT token in cookies
   const token = req.cookies.token;
+  console.log('JWT token exists:', !!token);
+  
   if (token) {
     const decoded = verifyToken(token);
+    console.log('JWT decoded:', !!decoded);
+    
     if (decoded) {
       try {
         // Find user by ID from token
         const user = await User.findById(decoded.sub).select('-password');
+        console.log('User found from token:', !!user);
+        
         if (user) {
           // Set user in session and locals
           req.session.user = {
@@ -28,6 +42,7 @@ exports.isAuthenticated = async (req, res, next) => {
             email: user.email
           };
           res.locals.user = req.session.user;
+          console.log('User set in session from token');
           return next();
         }
       } catch (error) {
@@ -36,7 +51,12 @@ exports.isAuthenticated = async (req, res, next) => {
     }
     
     // If token is invalid, clear the cookie
-    res.clearCookie('token');
+    console.log('Clearing invalid token cookie');
+    res.clearCookie('token', { 
+      httpOnly: true, 
+      secure: false,
+      sameSite: 'lax'
+    });
   }
   
   // No valid session or token
