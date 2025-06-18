@@ -47,7 +47,7 @@ Manages data persistence and access:
 
 ```
 ┌──────────┐     ┌──────────┐     ┌────────────┐     ┌────────────┐     ┌─────────┐
-│  Client  │────►│  Routes  │────►│ Controllers │────►│  Services  │────►│ Models  │
+│  Client  │────►│  Routes  │────►│ Controllers│────►│  Services  │────►│ Models  │
 │ Browser  │◄────│          │◄────│            │◄────│            │◄────│         │
 └──────────┘     └──────────┘     └────────────┘     └────────────┘     └─────────┘
                                                           │                  │
