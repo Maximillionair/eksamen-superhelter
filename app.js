@@ -8,6 +8,9 @@ const flash = require('connect-flash');
 const morgan = require('morgan');
 const expressLayouts = require('express-ejs-layouts');
 
+// Rate limiting middleware
+const { standardLimiter, authLimiter, apiLimiter, searchLimiter } = require('./middleware/ratelimit');
+
 // Database connection
 const { connectToDatabase } = require('./config/database');
 
@@ -117,17 +120,18 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
-app.use('/', indexRoutes);
-app.use('/auth', authRoutes);
-app.use('/superhero', superheroRoutes);
-app.use('/top-heroes', topHeroesRoutes); // Add top heroes routes
+// Routes with rate limiting
+app.use('/', standardLimiter, indexRoutes);
+app.use('/auth', authLimiter, authRoutes);
+app.use('/superhero', standardLimiter, superheroRoutes);
+app.use('/superhero/search', searchLimiter); // Apply stricter limits to search endpoints
+app.use('/top-heroes', standardLimiter, topHeroesRoutes);
 
 // Regular profile routes
-app.use('/profile', profileRoutes);
+app.use('/profile', standardLimiter, profileRoutes);
 
-app.use('/debug', debugRoutes); // Using unified debug routes only
-app.use('/api', apiRoutes);
+app.use('/debug', standardLimiter, debugRoutes); // Using unified debug routes only
+app.use('/api', apiLimiter, apiRoutes);
 
 // 404 handler
 app.use((req, res) => {
