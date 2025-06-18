@@ -30,17 +30,53 @@
               <!-- Favorite button -->
               <div class="mt-3">
                 <% if (locals.profile && profile.favoriteHeroes && profile.favoriteHeroes.includes(hero.id)) { %>
-                  <form action="/profile/favorites/<%= hero.id %>/remove" method="POST" class="d-inline">
-                    <button type="submit" class="btn btn-outline-danger">
-                      <i class="fas fa-heart me-2"></i>Remove from Favorites
-                    </button>
-                  </form>
+                  <div class="d-flex flex-column">
+                    <form action="/profile/favorites/<%= hero.id %>/remove" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-heart me-2"></i>Remove from Favorites
+                      </button>
+                    </form>
+                  
+                    <% 
+                      // Find the reason if exists
+                      let favoriteReason = '';
+                      if (profile.favoriteReasons && profile.favoriteReasons.length > 0) {
+                        const reasonObj = profile.favoriteReasons.find(r => r.heroId === hero.id);
+                        if (reasonObj) favoriteReason = reasonObj.reason;
+                      }
+                    %>
+                  
+                    <% if (favoriteReason) { %>
+                      <div class="mt-2 card bg-light">
+                        <div class="card-body">
+                          <h6 class="card-subtitle mb-2 text-muted">Why you like this hero:</h6>
+                          <p class="card-text"><%= favoriteReason %></p>
+                          <button type="button" class="btn btn-sm btn-outline-primary show-favorite-modal" 
+                            data-hero-id="<%= hero.id %>" 
+                            data-hero-name="<%= hero.name %>" 
+                            data-form-action="/profile/favorites/<%= hero.id %>/add">
+                            <i class="fas fa-edit me-1"></i>Edit Reason
+                          </button>
+                        </div>
+                      </div>
+                    <% } else { %>
+                      <div class="mt-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary show-favorite-modal" 
+                          data-hero-id="<%= hero.id %>" 
+                          data-hero-name="<%= hero.name %>" 
+                          data-form-action="/profile/favorites/<%= hero.id %>/add">
+                          <i class="fas fa-plus me-1"></i>Add a reason why you like this hero
+                        </button>
+                      </div>
+                    <% } %>
+                  </div>
                 <% } else { %>
-                  <form action="/profile/favorites/<%= hero.id %>/add" method="POST" class="d-inline">
-                    <button type="submit" class="btn btn-outline-primary">
-                      <i class="far fa-heart me-2"></i>Add to Favorites
-                    </button>
-                  </form>
+                  <button type="button" class="btn btn-outline-primary show-favorite-modal" 
+                    data-hero-id="<%= hero.id %>" 
+                    data-hero-name="<%= hero.name %>" 
+                    data-form-action="/profile/favorites/<%= hero.id %>/add">
+                    <i class="far fa-heart me-2"></i>Add to Favorites
+                  </button>
                 <% } %>
               </div>
             <% } %>
@@ -306,4 +342,28 @@
   
   <div class="text-center mb-5">
     <a href="/" class="btn btn-outline-primary">Back to Heroes</a>
+  </div>
+
+  <!-- Favorite Reason Modal (for editing reason) -->
+  <div class="modal fade" id="favoriteReasonModal" tabindex="-1" aria-labelledby="favoriteReasonModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="favoriteReasonModalLabel">Favorite Reason for <span id="favoriteHeroName"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="favoriteReasonForm" action="" method="POST">
+          <div class="modal-body">            <div class="mb-3">
+              <label for="favoriteReason" class="form-label">Why is this one of your favorite heroes?</label>
+              <textarea class="form-control favorite-reason-textarea" id="favoriteReason" name="reason" rows="3" placeholder="Tell us why you like this hero..."></textarea>
+              <small class="text-muted mt-1 d-block">Your reason will be displayed on your profile and hero detail pages.</small>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Reason</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>

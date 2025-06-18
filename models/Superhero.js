@@ -63,6 +63,10 @@ const SuperheroSchema = new mongoose.Schema({
   fetchedAt: {
     type: Date,
     default: Date.now
+  },
+  favoritesCount: {
+    type: Number,
+    default: 0
   }
 });
 

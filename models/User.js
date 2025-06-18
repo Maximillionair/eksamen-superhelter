@@ -31,6 +31,16 @@ const UserSchema = new mongoose.Schema({
   favoriteHeroes: [{
     type: Number,  // Superhero ID
     ref: 'Superhero'
+  }],
+  favoriteReasons: [{
+    heroId: {
+      type: Number,
+      required: true
+    },
+    reason: {
+      type: String,
+      default: ""
+    }
   }]
 });
 

@@ -201,23 +201,37 @@ exports.searchHeroes = async (query, limit = 20) => {
  */
 exports.getPaginatedHeroes = async (page = 1, limit = 20) => {
   try {
+    const { executeQueryWithTimeout } = require('../utils/database');
     const skip = (page - 1) * limit;
     
-    const heroes = await Superhero.find()
-      .skip(skip)
-      .limit(limit);
+    // Execute with timeout to prevent hanging requests
+    const heroes = await executeQueryWithTimeout(
+      Superhero.find().skip(skip).limit(limit),
+      8000,  // 8 second timeout
+      'Paginated heroes query'
+    );
       
-    const total = await Superhero.countDocuments();
+    const total = await executeQueryWithTimeout(
+      Superhero.countDocuments(),
+      5000,  // 5 second timeout
+      'Heroes count query'
+    );
     
     return {
-      heroes,
+      heroes: heroes || [],  // Ensure we return an array even if query fails
       currentPage: page,
-      totalPages: Math.ceil(total / limit),
-      totalHeroes: total
+      totalPages: Math.ceil(total / limit) || 1,  // Default to 1 page if count fails
+      totalHeroes: total || 0  // Default to 0 if count fails
     };
   } catch (error) {
     console.error('Error getting paginated heroes:', error);
-    throw error;
+    // Return default values on error to prevent app from crashing
+    return {
+      heroes: [],
+      currentPage: page,
+      totalPages: 1,
+      totalHeroes: 0
+    };
   }
 };
 
@@ -311,3 +325,27 @@ function transformApiData(apiData) {
     fetchedAt: new Date()
   };
 }
+
+/**
+ * Get top favorited heroes
+ * @param {Number} limit - Maximum number of heroes to return
+ * @returns {Array} - Array of top favorited heroes
+ */
+exports.getTopHeroes = async (limit = 10) => {
+  try {
+    const { executeQueryWithTimeout } = require('../utils/database');
+    
+    const topHeroes = await executeQueryWithTimeout(
+      Superhero.find({ favoritesCount: { $gt: 0 } })
+        .sort({ favoritesCount: -1 })
+        .limit(limit),
+      8000,  // 8 second timeout
+      'Top heroes query'
+    );
+      
+    return topHeroes || [];  // Ensure we return an array even if query fails
+  } catch (error) {
+    console.error('Error getting top heroes:', error);
+    return [];  // Return empty array on error to prevent app from crashing
+  }
+};

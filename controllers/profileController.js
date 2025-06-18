@@ -157,6 +157,7 @@ exports.updateProfile = async (req, res) => {
 exports.addToFavorites = async (req, res) => {
   try {
     const heroId = parseInt(req.params.id);
+    const { reason } = req.body;
     
     // Find user
     const user = await User.findById(req.session.user.id);
@@ -176,11 +177,39 @@ exports.addToFavorites = async (req, res) => {
     
     // Add to favorites if not already there
     if (!user.favoriteHeroes.includes(heroId)) {
+      // Add to favorites array
       user.favoriteHeroes.push(heroId);
+      
+      // Add reason to favoriteReasons if provided
+      if (reason) {
+        user.favoriteReasons.push({ heroId, reason });
+      }
+      
       await user.save();
+      
+      // Update hero favorites count
+      hero.favoritesCount = (hero.favoritesCount || 0) + 1;
+      await hero.save();
+      
       req.flash('success_msg', `${hero.name} added to favorites`);
     } else {
-      req.flash('info_msg', `${hero.name} is already in your favorites`);
+      // If hero is already favorited but reason is provided, update the reason
+      if (reason) {
+        const existingReasonIndex = user.favoriteReasons.findIndex(
+          item => item.heroId === heroId
+        );
+        
+        if (existingReasonIndex >= 0) {
+          user.favoriteReasons[existingReasonIndex].reason = reason;
+        } else {
+          user.favoriteReasons.push({ heroId, reason });
+        }
+        
+        await user.save();
+        req.flash('success_msg', `Updated your reason for favoriting ${hero.name}`);
+      } else {
+        req.flash('info_msg', `${hero.name} is already in your favorites`);
+      }
     }
     
     res.redirect(`/superhero/${heroId}`);
@@ -218,7 +247,18 @@ exports.removeFromFavorites = async (req, res) => {
     const index = user.favoriteHeroes.indexOf(heroId);
     if (index !== -1) {
       user.favoriteHeroes.splice(index, 1);
+      
+      // Remove from favoriteReasons
+      user.favoriteReasons = user.favoriteReasons.filter(item => item.heroId !== heroId);
+      
       await user.save();
+      
+      // Decrease hero favorites count
+      if (hero.favoritesCount > 0) {
+        hero.favoritesCount -= 1;
+        await hero.save();
+      }
+      
       req.flash('success_msg', `${hero.name} removed from favorites`);
     } else {
       req.flash('info_msg', `${hero.name} is not in your favorites`);

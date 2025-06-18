@@ -1,10 +1,17 @@
 <!-- views/partials/hero-card.ejs - Hero card component -->
 <div class="card h-100 shadow-sm">
-  <% if (hero.image && hero.image.url) { %>
-    <div class="card-img-top hero-card-image" style="background-image: url('<%= hero.image.url %>');"></div>
-  <% } else { %>
-    <div class="card-img-top hero-card-image" style="background-image: url('/images/hero-placeholder.jpg');"></div>
-  <% } %>
+  <div class="position-relative">
+    <% if (hero.favoritesCount && hero.favoritesCount > 0) { %>
+      <span class="position-absolute badge bg-success favorites-count-badge" data-bs-toggle="tooltip" title="People who like this hero">
+        <i class="fas fa-heart me-1"></i><%= hero.favoritesCount %>
+      </span>
+    <% } %>
+    <% if (hero.image && hero.image.url) { %>
+      <div class="card-img-top hero-card-image" style="background-image: url('<%= hero.image.url %>');"></div>
+    <% } else { %>
+      <div class="card-img-top hero-card-image" style="background-image: url('/images/hero-placeholder.jpg');"></div>
+    <% } %>
+  </div>
   <div class="card-body">
     <h5 class="card-title"><%= hero.name %></h5>
     
@@ -17,17 +24,30 @@
       
       <% if (locals.user) { %>
         <% if (locals.profile && profile.favoriteHeroes && profile.favoriteHeroes.includes(hero.id)) { %>
+          <% 
+            // Find the reason if exists
+            let favoriteReason = '';
+            if (profile.favoriteReasons && profile.favoriteReasons.length > 0) {
+              const reasonObj = profile.favoriteReasons.find(r => r.heroId === hero.id);
+              if (reasonObj) favoriteReason = reasonObj.reason;
+            }
+          %>
           <form action="/profile/favorites/<%= hero.id %>/remove" method="POST" class="d-inline">
-            <button type="submit" class="btn btn-outline-danger btn-sm">
-              <i class="fas fa-heart"></i>
+            <button type="submit" class="btn btn-danger btn-sm favorite-button" 
+              title="<%= favoriteReason ? 'Your reason: ' + favoriteReason : 'Remove from favorites' %>" 
+              data-bs-toggle="tooltip"
+              data-bs-custom-class="favorite-reason-tooltip">
+              <i class="fas fa-heart favorite-icon"></i>
             </button>
           </form>
         <% } else { %>
-          <form action="/profile/favorites/<%= hero.id %>/add" method="POST" class="d-inline">
-            <button type="submit" class="btn btn-outline-secondary btn-sm">
-              <i class="far fa-heart"></i>
-            </button>
-          </form>
+          <button type="button" class="btn btn-outline-secondary btn-sm favorite-button show-favorite-modal" 
+            data-hero-id="<%= hero.id %>" 
+            data-hero-name="<%= hero.name %>" 
+            data-form-action="/profile/favorites/<%= hero.id %>/add"
+            title="Add to favorites">
+            <i class="far fa-heart favorite-icon"></i>
+          </button>
         <% } %>
       <% } %>
     </div>

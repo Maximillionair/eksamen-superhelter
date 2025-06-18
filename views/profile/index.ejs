@@ -66,10 +66,49 @@
         </div>
         <div class="card-body">
           <% if (favoriteHeroes && favoriteHeroes.length > 0) { %>
-            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+            <div class="row row-cols-1 row-cols-md-2 g-4">
               <% favoriteHeroes.forEach(hero => { %>
                 <div class="col">
-                  <%- include('../partials/hero-card', { hero: hero, profile: profile }) %>
+                  <div class="card h-100 shadow-sm hero-card">
+                    <div class="position-relative">
+                      <% if (hero.image && hero.image.url) { %>
+                        <img src="<%= hero.image.url %>" class="card-img-top hero-img" alt="<%= hero.name %>">
+                      <% } else { %>
+                        <img src="/images/hero-placeholder.svg" class="card-img-top hero-img" alt="<%= hero.name %>">
+                      <% } %>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                      <h5 class="card-title"><%= hero.name %></h5>
+                      <% if (hero.biography && hero.biography.publisher) { %>
+                        <p class="card-text text-muted"><%= hero.biography.publisher %></p>
+                      <% } %>
+                        <% 
+                        // Find the reason if exists
+                        let favoriteReason = '';
+                        if (profile.favoriteReasons && profile.favoriteReasons.length > 0) {
+                          const reasonObj = profile.favoriteReasons.find(r => r.heroId === hero.id);
+                          if (reasonObj) favoriteReason = reasonObj.reason;
+                        }
+                      %>
+                        <% if (favoriteReason) { %>
+                        <div class="mt-2 mb-3">
+                          <div class="favorite-reason-container">
+                            <h6 class="favorite-reason-title">Why you like this hero:</h6>
+                            <p class="mb-0 favorite-reason-text"><%= favoriteReason %></p>
+                          </div>
+                        </div>
+                      <% } %>
+                      
+                      <div class="mt-auto d-flex">
+                        <a href="/superhero/<%= hero.id %>" class="btn btn-sm btn-outline-primary flex-grow-1 me-2">View Details</a>
+                        <form action="/profile/favorites/<%= hero.id %>/remove" method="POST">
+                          <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-heart-broken"></i>
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               <% }) %>
             </div>
@@ -81,4 +120,20 @@
           <% } %>
         </div>
       </div>
-    </div>  </div>
+    </div>
+  </div>
+    <style>
+    .hero-img {
+      height: 200px;
+      object-fit: cover;
+    }
+    
+    /* This style is kept for backwards compatibility but will not be used directly */
+    .favorite-reason {
+      font-style: italic;
+      font-size: 0.9rem;
+      background-color: #f8f9fa;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+    }
+  </style>

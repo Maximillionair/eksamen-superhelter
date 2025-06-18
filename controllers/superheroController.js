@@ -12,12 +12,20 @@ exports.getIndex = async (req, res) => {
     // Get paginated heroes
     const result = await superheroService.getPaginatedHeroes(page, limit);
     
+    // Get user profile with favorite heroes if user is logged in
+    let profile = null;
+    if (req.session.user && req.session.user.id) {
+      const User = require('../models/User');
+      profile = await User.findById(req.session.user.id);
+    }
+    
     res.render('index', { 
       title: 'Superhero Database',
       heroes: result.heroes,
       currentPage: result.currentPage,
       totalPages: result.totalPages,
       totalHeroes: result.totalHeroes,
+      profile: profile,
       user: req.session.user
     });
   } catch (error) {
@@ -53,11 +61,19 @@ exports.getSuperhero = async (req, res) => {
     const prevHero = await superheroService.findAdjacentHero(heroId, 'prev');
     const nextHero = await superheroService.findAdjacentHero(heroId, 'next');
     
+    // Get user profile with favorite reasons if user is logged in
+    let profile = null;
+    if (req.session.user && req.session.user.id) {
+      const User = require('../models/User');
+      profile = await User.findById(req.session.user.id);
+    }
+    
     res.render('superhero/details', { 
       title: hero.name,
       hero: hero,
       prevHeroId: prevHero ? prevHero.id : null,
       nextHeroId: nextHero ? nextHero.id : null,
+      profile: profile,
       user: req.session.user
     });
   } catch (error) {
@@ -81,11 +97,19 @@ exports.searchSuperheroes = async (req, res) => {
     // Add a flag to show if heroes were from API
     const source = heroes.length > 0 && !heroes[0].fetchedAt ? 'API' : 'Database';
     
+    // Get user profile with favorite heroes if user is logged in
+    let profile = null;
+    if (req.session.user && req.session.user.id) {
+      const User = require('../models/User');
+      profile = await User.findById(req.session.user.id);
+    }
+    
     res.render('superhero/search', { 
       title: 'Search Results',
       heroes: heroes,
       query: query,
       source: source,
+      profile: profile,
       user: req.session.user
     });
   } catch (error) {

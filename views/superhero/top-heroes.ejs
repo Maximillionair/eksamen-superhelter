@@ -1,0 +1,82 @@
+<!-- views/superhero/top-heroes.ejs - Top 10 Superheroes page -->
+<div class="container py-4">
+  <h1 class="display-4 text-center mb-5">Top 10 Most Favorited Superheroes</h1>
+  
+  <div class="row">
+    <% if (topHeroes && topHeroes.length > 0) { %>
+      <% topHeroes.forEach((hero, index) => { %>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 shadow-sm top-hero-card">
+            <div class="position-relative">
+              <span class="position-absolute badge bg-primary ranking-badge">
+                #<%= index + 1 %>
+              </span>
+              <span class="position-absolute badge bg-success favorites-count-badge">
+                <i class="fas fa-heart me-1"></i><%= hero.favoritesCount || 0 %>
+              </span>
+              <% if (hero.image && hero.image.url) { %>
+                <img src="<%= hero.image.url %>" class="card-img-top hero-img" alt="<%= hero.name %>">
+              <% } else { %>
+                <img src="/images/hero-placeholder.svg" class="card-img-top hero-img" alt="<%= hero.name %>">
+              <% } %>
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title"><%= hero.name %></h5>
+              <% if (hero.biography && hero.biography.publisher) { %>
+                <p class="card-text text-muted"><%= hero.biography.publisher %></p>
+              <% } %>
+              
+              <div class="mt-auto d-flex justify-content-between align-items-center">
+                <a href="/superhero/<%= hero.id %>" class="btn btn-primary btn-sm flex-grow-1 me-2">View Details</a>
+                
+                <% if (locals.user) { %>
+                  <% if (locals.profile && profile.favoriteHeroes && profile.favoriteHeroes.includes(hero.id)) { %>
+                    <% 
+                      // Find the reason if exists
+                      let favoriteReason = '';
+                      if (profile.favoriteReasons && profile.favoriteReasons.length > 0) {
+                        const reasonObj = profile.favoriteReasons.find(r => r.heroId === hero.id);
+                        if (reasonObj) favoriteReason = reasonObj.reason;
+                      }
+                    %>
+                    <form action="/profile/favorites/<%= hero.id %>/remove" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-danger btn-sm favorite-button" 
+                        title="<%= favoriteReason ? 'Your reason: ' + favoriteReason : 'Remove from favorites' %>" 
+                        data-bs-toggle="tooltip"
+                        data-bs-custom-class="favorite-reason-tooltip">
+                        <i class="fas fa-heart favorite-icon"></i>
+                      </button>
+                    </form>
+                  <% } else { %>
+                    <button type="button" class="btn btn-outline-secondary btn-sm favorite-button show-favorite-modal" 
+                      data-hero-id="<%= hero.id %>" 
+                      data-hero-name="<%= hero.name %>" 
+                      data-form-action="/profile/favorites/<%= hero.id %>/add"
+                      title="Add to favorites">
+                      <i class="far fa-heart favorite-icon"></i>
+                    </button>
+                  <% } %>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <div class="col-12 text-center">
+        <div class="alert alert-info">
+          <h3>No favorites yet!</h3>
+          <p>Be the first to favorite a superhero.</p>
+          <a href="/superhero/search" class="btn btn-primary mt-3">Browse Heroes</a>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<style>
+  .hero-img {
+    height: 250px;
+    object-fit: cover;
+  }
+</style>

@@ -2,52 +2,36 @@
 require('dotenv').config();
 
 const express = require('express');
-const mongoose = require('mongoose');
 const path = require('path');
 const session = require('express-session');
 const flash = require('connect-flash');
 const morgan = require('morgan');
 const expressLayouts = require('express-ejs-layouts');
 
+// Database connection
+const { connectToDatabase } = require('./config/database');
+
 // Import routes
 const indexRoutes = require('./routes/index');
 const authRoutes = require('./routes/auth');
 const superheroRoutes = require('./routes/superhero');
 const profileRoutes = require('./routes/profile');
+const topHeroesRoutes = require('./routes/top-heroes'); // Import top heroes routes
 const debugRoutes = require('./routes/unified-debug'); // Use unified debug routes
 const apiRoutes = require('./routes/api');
 
 // Initialize app
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 
-// Connect to MongoDB with simple configuration
-// Try local connection if VM connection fails
-const vmMongoUri = process.env.MONGODB_URI || 'mongodb://10.12.87.70:27017/superhero-app';
-const localMongoUri = 'mongodb://localhost:27017/superhero-app';
-
-console.log(`Attempting to connect to MongoDB at: ${vmMongoUri}`);
-
-// Try VM connection first, fall back to localhost
-mongoose.connect(vmMongoUri)
-  .then(() => {
-    console.log('MongoDB connected successfully to VM');
-    global.isVmEnvironment = true;
-  })
-  .catch(vmErr => {
-    console.error('MongoDB VM connection error:', vmErr);
-    console.log('Trying local MongoDB connection instead...');
-    
-    mongoose.connect(localMongoUri)
-      .then(() => {
-        console.log('MongoDB connected successfully to localhost');
-        global.isVmEnvironment = false;
-      })
-      .catch(localErr => {
-        console.error('MongoDB local connection error:', localErr);
-        console.log('Could not connect to any MongoDB instance. Profile functionality may not work.');
-        global.isVmEnvironment = false;
-      });
+// Connect to MongoDB using the centralized connection module
+connectToDatabase()
+  .then(isConnected => {
+    if (isConnected) {
+      console.log('Database connection established successfully');
+    } else {
+      console.log('Database connection failed, limited functionality available');
+    }
   });
 
 // Set view engine
@@ -137,6 +121,7 @@ app.use((req, res, next) => {
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/superhero', superheroRoutes);
+app.use('/top-heroes', topHeroesRoutes); // Add top heroes routes
 
 // Regular profile routes
 app.use('/profile', profileRoutes);
